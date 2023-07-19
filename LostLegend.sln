@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LostLegend", "LostLegend.csproj", "{D2D8B468-C9BD-4776-8107-9DB01523746D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2D8B468-C9BD-4776-8107-9DB01523746D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2D8B468-C9BD-4776-8107-9DB01523746D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2D8B468-C9BD-4776-8107-9DB01523746D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{D2D8B468-C9BD-4776-8107-9DB01523746D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2D8B468-C9BD-4776-8107-9DB01523746D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2D8B468-C9BD-4776-8107-9DB01523746D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {965B49F1-E219-4A9D-9220-97CFFEB90B6F}
+	EndGlobalSection
+EndGlobal
