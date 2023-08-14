@@ -52,7 +52,7 @@ namespace LostLegend.Graphics.GUI
             BeginToFade = true;
         }
         public string Update(GameTime gameTime)
-        {
+		{
             if (FreezeMenu)
             {
                 if (FadeOnExit && BeginToFade)

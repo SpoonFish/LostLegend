@@ -14,7 +14,7 @@ namespace LostLegend.Graphics.GUI
         {
         }
 
-        virtual public ButtonSignalEvent Update(Vector2 touchPos, bool isScreenTouched, Point offset = new Point())
+        virtual public ButtonSignalEvent Update(Vector2 touchPos, bool isScreenTouched, Point offset = new Point(), string newText = "")
         {
             return new ButtonSignalEvent();
         }

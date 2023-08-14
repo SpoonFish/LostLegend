@@ -7,6 +7,7 @@ using LostLegend.Statics;
 using LostLegend.Graphics.GUI.Text;
 using LostLegend.Graphics.GUI.Interactions;
 using Microsoft.Xna.Framework.Input;
+using Android.Transitions;
 
 namespace LostLegend.Graphics.GUI
 {
@@ -14,7 +15,7 @@ namespace LostLegend.Graphics.GUI
 
     {
         private Panel Box;
-        private string Text;
+        public string Text;
         private string OrigText;
         private string HoverText;
         public Vector2 Position;
@@ -29,27 +30,29 @@ namespace LostLegend.Graphics.GUI
         private bool CurrentlyClicked;
         private bool CurrentlyHovered;
         private ButtonSignalEvent Signal;
-        private bool ScreenFixed;
+        public GuiTransition ComponentTransition;
         public List<LetterSprite> BoxImageText;
 
-        public Button(string text, string hoverText, Vector2 position, Vector2 size, ButtonSignalEvent signal, string boxType = "bronze", string hoverBoxType = "bronze", string clickBoxType = "bronze", bool screenFixed = true, Vector2 textOffset = new Vector2())
+        public Button(string text, string hoverText, Vector2 position, Vector2 size, ButtonSignalEvent signal, string boxType = "bronze", GuiTransition transition = null, Vector2 textOffset = new Vector2())
         {
+            if (transition == null)
+                ComponentTransition = new GuiTransition();
+            else
+                ComponentTransition = transition;
             TextOffset = textOffset;
             Signal = signal;
             CurrentlyClicked = false;
             BoxType = boxType;
             OrigBoxType = boxType;
-            HoverBoxType = hoverBoxType;
-            ClickBoxType = clickBoxType;
-            ScreenFixed = screenFixed;
-            Text = text.ToUpper();
-            OrigText = text.ToUpper();
-            HoverText = hoverText.ToUpper();
+            HoverBoxType = boxType;
+            ClickBoxType = boxType;
+            Text = text;
+            OrigText = text;
+            HoverText = hoverText;
             Position = position;
             Width = (int)size.X;
             Height = (int)size.Y;
             ClickArea = new Rectangle((int)position.X-2, (int)position.Y-2, Width+4, Height+4);
-            ScreenFixed = screenFixed;
             BoxImageText = new List<LetterSprite>();
             LoadText();
             LoadBoxType();
@@ -82,7 +85,7 @@ namespace LostLegend.Graphics.GUI
                         continue;
                     }
                     TextLetter image = ContentLoader.FontDict[' '];
-                    if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:'!?-+1234567890% ".Contains(letter))
+                    if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:'!?-+1234567890%>< ".Contains(letter))
                         image = ContentLoader.FontDict[letter];
                     lineX += image.Texture.Width + image.Spacing;
 
@@ -107,7 +110,7 @@ namespace LostLegend.Graphics.GUI
                         }
                         catch
                         {
-                            currentColour = ContentLoader.Colours["grey"];
+                            currentColour = ContentLoader.Colours["gray"];
                         }
                         colourString = "";
                         continue;
@@ -122,7 +125,7 @@ namespace LostLegend.Graphics.GUI
                         continue;
                     }
                     TextLetter image = ContentLoader.FontDict[' '];
-                    if ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!?.,:+-=%()/ ".Contains(letter))
+                    if ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!?.,:+-=%()/><'>< ".Contains(letter))
                         image = ContentLoader.FontDict[letter];
                     LetterSprite letterSprite = new LetterSprite(image, new Vector2(lineX + margin, (Height - 17) / 2), currentColour);
                     lineX += image.Texture.Width + image.Spacing;
@@ -135,8 +138,13 @@ namespace LostLegend.Graphics.GUI
 
         }
 
-        public ButtonSignalEvent Update(Vector2 touchPos, Vector2 touchPos2, bool isScreenTouched, Point offset = new Point())
+        public ButtonSignalEvent Update(Vector2 touchPos, Vector2 touchPos2, bool isScreenTouched, Point offset = new Point(), string newText = "")
         {
+            if (newText != "")
+            {
+                Text = newText;
+                LoadText();
+            }
             Rectangle OffsetClickArea = new Rectangle(ClickArea.X + offset.X, ClickArea.Y + offset.Y, ClickArea.Width, ClickArea.Height);
             CurrentlyHovered = OffsetClickArea.Contains(touchPos);
             if (OffsetClickArea.Contains(touchPos))
@@ -198,6 +206,27 @@ namespace LostLegend.Graphics.GUI
                 case "bronze":
                     Box = new Panel(ContentLoader.Images["bronze"], new Vector2(Width, Height), 6);
                     break;
+                case "br_outline":
+                    Box = new Panel(ContentLoader.Images["bronze_outline"], new Vector2(Width, Height), 3);
+                    break;
+				case "category_outline":
+					Box = new Panel(ContentLoader.Images["category_outline"], new Vector2(Width, Height), 3);
+					break;
+				case "br_outline_round":
+                    Box = new Panel(ContentLoader.Images["bronze_outline_round"], new Vector2(Width, Height), 4);
+                    break;
+                case "blue_outline_round":
+                    Box = new Panel(ContentLoader.Images["blue_outline_round"], new Vector2(Width, Height), 4);
+                    break;
+                case "br_outline_round_light":
+                    Box = new Panel(ContentLoader.Images["bronze_outline_round_light"], new Vector2(Width, Height), 4);
+                    break;
+                case "br_thick":
+                    Box = new Panel(ContentLoader.Images["bronze_thick"], new Vector2(Width, Height), 8);
+                    break;
+                case "br_thin":
+                    Box = new Panel(ContentLoader.Images["bronze_thin"], new Vector2(Width, Height), 4);
+                    break;
                 case "none":
                     Box = new Panel(ContentLoader.Images["no_box"], new Vector2(Width, Height), 1);
                     break;
@@ -210,7 +239,7 @@ namespace LostLegend.Graphics.GUI
         public void Draw(SpriteBatch spriteBatch, Vector2 offset = new Vector2())
         {
             Vector2 origin = new Vector2(0, 0);
-            Box.Draw(spriteBatch, Position + offset);
+            Box.Draw(spriteBatch, Position + offset + ComponentTransition.CurrentComponentPosOffset, ComponentTransition.CurrentComponentOpacity);
             foreach (LetterSprite letterSprite in BoxImageText)
             {
                 Texture2D image = letterSprite.Letter.Texture;
@@ -223,9 +252,9 @@ namespace LostLegend.Graphics.GUI
 
                 Rectangle sourceRectangle = new Rectangle(0, 0, width, height);
 
-                Rectangle destinationRectangle = new Rectangle((int)drawPos.X + (int)offset.X, (int)drawPos.Y+(int)offset.Y, width, height);
+                Rectangle destinationRectangle = new Rectangle((int)drawPos.X + (int)offset.X + (int)ComponentTransition.CurrentComponentPosOffset.X, (int)drawPos.Y+(int)offset.Y + (int)ComponentTransition.CurrentComponentPosOffset.Y, width, height);
 
-                spriteBatch.Draw(image, destinationRectangle, sourceRectangle, letterSprite.Colour, 0, origin, SpriteEffects.None, 1);
+                spriteBatch.Draw(image, destinationRectangle, sourceRectangle, letterSprite.Colour * ComponentTransition.CurrentComponentOpacity, 0, origin, SpriteEffects.None, 1);
             }
         }
     }

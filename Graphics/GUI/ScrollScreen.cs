@@ -3,29 +3,33 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace LostLegend.Graphics.GUI
 {
     class ScrollScreen : GuiScreen
     {
+        private Vector2 AddedPrevScroll;
+        private Vector2 AddedPrevScroll2;
         private Vector2 Position;
         private Vector2 Size;
         private Point StartingScroll; // The scroll wheel value before the screen was created. used to find the real change in scroll.
-        public Vector2 CurrentScroll; //offset for drawing the components on this screen
+        //public Vector2 CurrentScroll; //offset for drawing the components on this screen
         public Vector2 KeyboardScroll;
         private Vector2 MaxScroll;
         private Vector2 MinScroll;
         private Vector2 OriginalWheelScroll;
         private Rectangle ClickArea;
+        private bool FirstScroll;
         private bool ScrollHorizontal;
         private bool ScrollVertical;
         private bool ScrollWheel;
 
         public ScrollScreen(Vector2 position, Vector2 size, Vector2 maxScroll, Vector2 minscroll, Point startingScroll = new Point(), bool scrollHorizontal = true, bool scrollVertical = true, bool usesScrollWheel= false) : base()
         {
-            KeyboardScroll = Vector2.Zero;
-            CurrentScroll = Vector2.Zero;
+            KeyboardScroll = startingScroll.ToVector2();
             StartingScroll = startingScroll;
+            CurrentScroll = startingScroll.ToVector2();
             OriginalWheelScroll.X = Mouse.GetState().ScrollWheelValue;
             OriginalWheelScroll.Y = Mouse.GetState().HorizontalScrollWheelValue;
             Size = size;
@@ -34,81 +38,66 @@ namespace LostLegend.Graphics.GUI
             ClickArea = new Rectangle((int)Position.X, (int)Position.Y, (int)Size.X, (int)Size.Y);
             MaxScroll = maxScroll;
             MinScroll = minscroll;
+            AddedPrevScroll = new Vector2();
+            AddedPrevScroll2 = new Vector2();
             ScrollHorizontal = scrollHorizontal;
+            InteractionButtons = new List<MapInteractionButton>();
             ScrollVertical = scrollVertical;
             BackgroundComponents = new List<IGuiComponent>();
             BasicComponents = new List<IGuiComponent>();
             Buttons = new List<IGuiButton>();
             TextInputs = new List<TextInput>();
             FadingImages = new List<FadingImage>();
+            FirstScroll = false;
         }
 
-        public void Update(Vector2 touchPos, bool isScreenTouched)
+        public void Update(Vector2 touchPos, Vector2 scrollDif, float scrollMomentum)
         {
-            if (!ClickArea.Contains(touchPos))
+            if (ScrollHorizontal == false &&  ScrollVertical == false) return;
+            if (scrollMomentum == 0)
+            {
                 return;
-
-            int verticalScroll = 0;
-            int horizontalScroll = 0;
-            if (ScrollWheel)
-            {
-                //verticalScroll = (mouseState.ScrollWheelValue - (int)OriginalWheelScroll.X) / 10;
-//                horizontalScroll = (mouseState.HorizontalScrollWheelValue - (int)OriginalWheelScroll.Y) / 10;
-
             }
 
-            KeyboardState currentKeys = Keyboard.GetState();
 
-            if (currentKeys.IsKeyDown(Keys.W) || currentKeys.IsKeyDown(Keys.Up))
-                KeyboardScroll.Y += 3;
-            if (currentKeys.IsKeyDown(Keys.S) || currentKeys.IsKeyDown(Keys.Down))
-                KeyboardScroll.Y -= 3;
-            if (currentKeys.IsKeyDown(Keys.A) || currentKeys.IsKeyDown(Keys.Left))
-                KeyboardScroll.X += 3;
-            if (currentKeys.IsKeyDown(Keys.D) || currentKeys.IsKeyDown(Keys.Right))
-                KeyboardScroll.X -= 3;
+            KeyboardScroll += scrollDif;
 
 
-            if (StartingScroll == Point.Zero)
-            {
-                StartingScroll = new Point(horizontalScroll, verticalScroll);
-            }
             // delta y, delta x scrolls
-            float dyScroll = StartingScroll.Y - verticalScroll - KeyboardScroll.Y;
-            float dxScroll = StartingScroll.X - horizontalScroll - KeyboardScroll.X;
 
             if (ScrollHorizontal == false)
-                dxScroll = 0;
+                KeyboardScroll.X = 0;
             if (ScrollVertical == false)
-                dyScroll = 0;
-
-            if (dyScroll < MinScroll.Y)
+                KeyboardScroll.Y = 0;
+            
+            if (KeyboardScroll.Y < MinScroll.Y)
             {
-                StartingScroll.Y -= (int)dyScroll - (int)MinScroll.Y;
-                dyScroll = MinScroll.Y;
+                //StartingScroll.Y -= (int)dyScroll - (int)MinScroll.Y;
+                KeyboardScroll.Y = MinScroll.Y;
             }
-            else if (dyScroll > MaxScroll.Y)
+            else if (KeyboardScroll.Y > MaxScroll.Y)
             {
-                StartingScroll.Y -= (int)dyScroll - (int)MaxScroll.Y;
-                dyScroll = MaxScroll.Y;
-
-            }
-
-
-            if (dxScroll < MinScroll.X)
-            {
-                StartingScroll.X -= (int)dxScroll - (int)MinScroll.X;
-                dxScroll = MinScroll.X;
-            }
-            else if (dxScroll > MaxScroll.X)
-            {
-                StartingScroll.X -= (int)dxScroll - (int)MaxScroll.X;
-                dxScroll = MaxScroll.X;
+                //StartingScroll.Y -= (int)dyScroll - (int)MaxScroll.Y;
+                KeyboardScroll.Y = MaxScroll.Y;
 
             }
-            if (Math.Abs(dxScroll) + Math.Abs(dyScroll) == 0)
-                return;
-            CurrentScroll = new Vector2(-dxScroll, -dyScroll); //inverting polarity because offset gets added not deducted
+
+
+            if (KeyboardScroll.X < MinScroll.X)
+            {
+                //StartingScroll.Y -= (int)dyScroll - (int)MinScroll.Y;
+                KeyboardScroll.X = MinScroll.X;
+            }
+            else if (KeyboardScroll.X > MaxScroll.X)
+            {
+                //StartingScrol.Y -= (int)dyScroll - (int)MaxScroll.Y;
+                KeyboardScroll.X = MaxScroll.X;
+
+            }
+            //if (Math.Abs(dxScroll) + Math.Abs(dyScroll) == 0)
+              //  return;
+            
+            CurrentScroll = KeyboardScroll; //inverting polarity because offset gets added not deducted
         }
     }
 }

@@ -7,6 +7,12 @@ using Microsoft.Xna.Framework;
 using LostLegend.Statics;
 using LostLegend.Graphics.GUI.Interactions;
 using System.ComponentModel.Design;
+using Android.Systems;
+using LostLegend.World;
+using System.ComponentModel;
+using static Android.Icu.Text.Transliterator;
+using System.Threading;
+using LostLegend.Entities.InventoryStuff;
 
 namespace LostLegend.States
 {
@@ -37,6 +43,7 @@ namespace LostLegend.States
  
                     break;
                 case "titlescreen":
+                    components.MainScreen.BackgroundComponents.Add(new ImagePanel(Measurements.OverflowBackgroundPosition, ContentLoader.Images["ancient_pond"], Measurements.OverflowBackgroundSize));
                     components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(Measurements.EighthScreen.X, Measurements.EighthScreen.X), ContentLoader.Images["lostlegend_logo"], new Vector2(Measurements.ThreeQuarterScreen.X, Measurements.ThreeQuarterScreen.X/3*2)));
                     //components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(0, 0), ContentLoader.Images["test2"], master.ScreenSize));
                     //ImagePanel logo = new ImagePanel(new Vector2(0, 0), ContentLoader.Images["spextria_logo"], new Vector2(426, 233));
@@ -44,115 +51,265 @@ namespace LostLegend.States
                     //components.FadingImages.Add(new FadingImage(logo, "in", 1.5));
                     AddFade(components, false, 0.5);
 
-                    components.MainScreen.Buttons.Add(new Button("#white#PLAY", "#lightyellow#PLAY", new Vector2(Measurements.QuarterScreen.X, Measurements.QuarterScreen.Y + 90), new Vector2(Measurements.HalfScreen.X, 40), new ButtonSignalEvent("change_menu", "titlescreen")));
+                    components.MainScreen.Buttons.Add(new Button("#white#PLAY", "#lightyellow#PLAY", new Vector2(Measurements.QuarterScreen.X, Measurements.QuarterScreen.Y + 70), new Vector2(Measurements.HalfScreen.X, 40), new ButtonSignalEvent("change_menu", "save_select"), "br_thick", new GuiTransition(true, 0.4, new Vector2(-200, 0), 0)));
                    
-                    components.MainScreen.Buttons.Add(new Button("#white#SETTINGS", "#lightblue#SETTINGS", new Vector2(Measurements.QuarterScreen.X, Measurements.HalfScreen.Y + 55), new Vector2(Measurements.HalfScreen.X, 40), new ButtonSignalEvent("change_menu", "opening1")));
+                    components.MainScreen.Buttons.Add(new Button("#white#SETTINGS", "#lightblue#SETTINGS", new Vector2(Measurements.QuarterScreen.X, Measurements.HalfScreen.Y + 20), new Vector2(Measurements.HalfScreen.X, 40), new ButtonSignalEvent("change_menu", "opening1"), "br_thick", new GuiTransition(true, 0.4, new Vector2(200, 0), 0.3)));
                   
-                    components.MainScreen.Buttons.Add(new Button("#white#EXIT", "#lightred#EXIT", new Vector2(Measurements.QuarterScreen.X, Measurements.ThreeQuarterScreen.Y + 20), new Vector2(Measurements.HalfScreen.X, 40), new ButtonSignalEvent("exit")));
+                    components.MainScreen.Buttons.Add(new Button("#white#EXIT", "#lightred#EXIT", new Vector2(Measurements.QuarterScreen.X, Measurements.ThreeQuarterScreen.Y -30), new Vector2(Measurements.HalfScreen.X, 40), new ButtonSignalEvent("exit"), "br_thick", new GuiTransition(true, 0.4, new Vector2(-200, 0), 0.6)));
+                    break;
+                case "save_select":
+
+                    components.MainScreen.Buttons.Add(new Button("#lightgray#SELECT A CHARACTER", "#lightgray#SELECT A CHARACTER", new Vector2(-10, -10), new Vector2(Measurements.FullScreen.X + 20, Measurements.EighthScreen.Y), new ButtonSignalEvent(), "br_thick", null, new Vector2(20,10)));
+
+                    components.MainScreen.Buttons.Add(new Button("", "", new Vector2(-10, Measurements.FullScreen.Y-Measurements.EighthScreen.Y+10), new Vector2(Measurements.FullScreen.X + 20, Measurements.EighthScreen.Y), new ButtonSignalEvent(),"br_thick", null, new Vector2(0, 10)));
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightred#<", new Vector2(5, 15), new Vector2(30, 30), new ButtonSignalEvent("change_menu", "titlescreen"), "br_thin", null));
+                    if (master.storedDataManager.NextAvailableSaveSlot == 10)
+
+                        components.MainScreen.Buttons.Add(new Button("#gray#CREATE CHARACTER", "#gray#CREATE CHARACTER", new Vector2(10, Measurements.FullScreen.Y - Measurements.EighthScreen.Y + 20), new Vector2(Measurements.FullScreen.X - 20, Measurements.EighthScreen.Y - 30), new ButtonSignalEvent("create_character"), "br_thin", null));
+
+                    else
+                        components.MainScreen.Buttons.Add(new Button("CREATE CHARACTER", "#lightgray#CREATE CHARACTER", new Vector2(10, Measurements.FullScreen.Y - Measurements.EighthScreen.Y + 20), new Vector2(Measurements.FullScreen.X - 20, Measurements.EighthScreen.Y - 30), new ButtonSignalEvent("create_character"), "br_thin", null));
+
+                    //components.MainScreen.BackgroundComponents.Add(new TextBox("SELECT A CHARACTER", new Vector2(Measurements.EighthScreen.X, Measurements.EighthScreen.X), (int)Measurements.ThreeQuarterScreen.X, "none"));
+                    //components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(0, 0), ContentLoader.Images["test2"], master.ScreenSize));
+                    //ImagePanel logo = new ImagePanel(new Vector2(0, 0), ContentLoader.Images["spextria_logo"], new Vector2(426, 233));
+                    //components.MainScreen.BasicComponents.Add(logo);
+                    //components.FadingImages.Add(new FadingImage(logo, "in", 1.5));
+                    AddFade(components, false, 0.5);
+                    components.Screens.Add(new ScrollScreen(new Vector2(0,Measurements.EighthScreen.Y -8), new Vector2(Measurements.FullScreen.X , Measurements.ThreeQuarterScreen.Y+24), new Vector2(0,Measurements.EighthScreen.Y - 20), new Vector2(0, Measurements.EighthScreen.Y - 635), new Point(0, (int)Measurements.EighthScreen.Y - 20), false, true));
+
+
+                    for (int i =0; i < 10; i++)
+                    {
+                        Vector2 pos = new Vector2(Measurements.EighthScreen.X / 2, Measurements.EighthScreen.Y - 28 + i * 100);
+                        if (master.storedDataManager.SaveFiles[i].New)
+                        {
+                            components.Screens[0].Buttons.Add(new Button($"#gray#EMPTY SLOT", $"#gray#EMPTY SLOT", pos, new Vector2(Measurements.ThreeQuarterScreen.X + Measurements.EighthScreen.X, 80), new ButtonSignalEvent()));
+                        }
+
+
+                        else
+                        {
+
+                            components.Screens[0].BasicComponents.Add(new ImagePanel(pos + new Vector2(15, 7), ContentLoader.UniqueImage(ContentLoader.Images["head_" + master.storedDataManager.SaveFiles[i].CharacterAppearance[3]], 0), new Vector2(50, (50 * 30 / 16))));
+                            components.Screens[0].BasicComponents.Add(new ImagePanel(pos + new Vector2(15, 7), ContentLoader.Images[master.storedDataManager.SaveFiles[i].CharacterAppearance[0] + "_" + master.storedDataManager.SaveFiles[i].CharacterAppearance[1]], new Vector2(50, (50 * 30 / 16))));
+                            components.Screens[0].BasicComponents.Add(new ImagePanel(pos + new Vector2(15, 7), ContentLoader.Images["eyes_" + master.storedDataManager.SaveFiles[i].CharacterAppearance[2]], new Vector2(50, (50*30/16))));
+
+                            components.Screens[0].Buttons.Add(new Button($"#white#{master.storedDataManager.SaveFiles[i].Name}", $"#lightyellow#{master.storedDataManager.SaveFiles[i].Name}", new Vector2(Measurements.EighthScreen.X / 2, Measurements.EighthScreen.Y - 28 + i * 100), new Vector2(Measurements.ThreeQuarterScreen.X + Measurements.EighthScreen.X, 80), new ButtonSignalEvent("select_save", i.ToString()), "bronze", null, new Vector2(25, 0)));
+                        }
+                    }
+
                     break;
 
-               
+                case "create_character":
+                    components.MainScreen.Buttons.Add(new Button("#lightgray#CHARACTER CREATOR", "#lightgray#CHARACTER CREATOR", new Vector2(-10, -10), new Vector2(Measurements.FullScreen.X + 20, Measurements.EighthScreen.Y), new ButtonSignalEvent(), "br_thick", null, new Vector2(20, 10)));
+
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightred#<", new Vector2(5, 15), new Vector2(30, 30), new ButtonSignalEvent("change_menu", "save_select"), "br_thin", null));
+
+                    components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(Measurements.QuarterScreen.X*0.6f, Measurements.QuarterScreen.Y * 0.6f - 30), ContentLoader.UniqueImage(ContentLoader.Images["head_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[3]], 0), new Vector2(Measurements.HalfScreen.X*1.4f, (int)(Measurements.HalfScreen.X * 1.4f * (30f/16f)))));
+                    components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(Measurements.QuarterScreen.X * 0.6f, Measurements.QuarterScreen.Y * 0.6f - 30), ContentLoader.Images[master.storedDataManager.CurrentSaveFile.CharacterAppearance[0] + "_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[1]], new Vector2(Measurements.HalfScreen.X * 1.4f, (int)(Measurements.HalfScreen.X * 1.4f* (30f / 16f)))));
+                    components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(Measurements.QuarterScreen.X * 0.6f, Measurements.QuarterScreen.Y * 0.6f - 30), ContentLoader.Images["eyes_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[2]], new Vector2(Measurements.HalfScreen.X * 1.4f, (int)(Measurements.HalfScreen.X * 1.4f * (30f / 16f)))));
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightgray#<", new Vector2(Measurements.EighthScreen.X - 25, Measurements.QuarterScreen.Y + 25), new Vector2(30, 30), new ButtonSignalEvent("change_character", "head_direction,prev"), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button(">", "#lightgray#>", new Vector2(Measurements.FullScreen.X - Measurements.EighthScreen.X - 5, Measurements.QuarterScreen.Y + 25), new Vector2(30, 30), new ButtonSignalEvent("change_character", "head_direction,next"), "br_thin"));
+
+                    components.MainScreen.Buttons.Add(new Button("Hair Type", "Hair Type", new Vector2(Measurements.QuarterScreen.X, Measurements.HalfScreen.Y + 20), new Vector2(Measurements.HalfScreen.X, 20), new ButtonSignalEvent(), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightgray#<", new Vector2(Measurements.EighthScreen.X- 15, Measurements.HalfScreen.Y + 15), new Vector2(30,30), new ButtonSignalEvent("change_character", "hair_type,prev"), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button(">", "#lightgray#>", new Vector2(Measurements.FullScreen.X - Measurements.EighthScreen.X - 15, Measurements.HalfScreen.Y + 15), new Vector2(30, 30), new ButtonSignalEvent("change_character", "hair_type,next"), "br_thin"));
+
+                    components.MainScreen.Buttons.Add(new Button("Hair Colour", "Hair Colour", new Vector2(Measurements.QuarterScreen.X, Measurements.HalfScreen.Y + 70), new Vector2(Measurements.HalfScreen.X, 20), new ButtonSignalEvent(), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightgray#<", new Vector2(Measurements.EighthScreen.X - 15, Measurements.HalfScreen.Y + 65), new Vector2(30, 30), new ButtonSignalEvent("change_character", "hair_colour,prev"), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button(">", "#lightgray#>", new Vector2(Measurements.FullScreen.X - Measurements.EighthScreen.X - 15, Measurements.HalfScreen.Y + 65), new Vector2(30, 30), new ButtonSignalEvent("change_character", "hair_colour,next"), "br_thin"));
+
+                    components.MainScreen.Buttons.Add(new Button("Eye Colour", "Eye Colour", new Vector2(Measurements.QuarterScreen.X, Measurements.HalfScreen.Y + 120), new Vector2(Measurements.HalfScreen.X, 20), new ButtonSignalEvent(), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightgray#<", new Vector2(Measurements.EighthScreen.X - 15, Measurements.HalfScreen.Y + 115), new Vector2(30, 30), new ButtonSignalEvent("change_character", "eye_colour,prev"), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button(">", "#lightgray#>", new Vector2(Measurements.FullScreen.X - Measurements.EighthScreen.X - 15, Measurements.HalfScreen.Y + 115), new Vector2(30, 30), new ButtonSignalEvent("change_character", "eye_colour,next"), "br_thin"));
+
+                    components.MainScreen.Buttons.Add(new Button("Skin Tone", "Skin Tone", new Vector2(Measurements.QuarterScreen.X, Measurements.HalfScreen.Y + 170), new Vector2(Measurements.HalfScreen.X, 20), new ButtonSignalEvent(), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightgray#<", new Vector2(Measurements.EighthScreen.X - 15, Measurements.HalfScreen.Y + 165), new Vector2(30, 30), new ButtonSignalEvent("change_character", "skin_tone,prev"), "br_thin"));
+                    components.MainScreen.Buttons.Add(new Button(">", "#lightgray#>", new Vector2(Measurements.FullScreen.X - Measurements.EighthScreen.X - 15, Measurements.HalfScreen.Y + 165), new Vector2(30, 30), new ButtonSignalEvent("change_character", "skin_tone,next"), "br_thin"));
+
+
+                    components.MainScreen.Buttons.Add(new Button("DONE", "#lightgray#DONE", new Vector2(10, Measurements.FullScreen.Y - Measurements.EighthScreen.Y + 17), new Vector2(Measurements.FullScreen.X - 20, Measurements.EighthScreen.Y - 27), new ButtonSignalEvent("change_menu", "name_character")));
+
+                    AddFade(components, isReload, 0.5);
+
+                    break;
+
+                case "name_character":
+                    components.MainScreen.BasicComponents.Add(new TextBox("CHOOSE A NAME FOR THIS CHARACTER ", new Vector2(Measurements.EighthScreen.X, Measurements.QuarterScreen.Y), (int)Measurements.ThreeQuarterScreen.X, "none", "centre"));
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightred#<", new Vector2(5, 15), new Vector2(30, 30), new ButtonSignalEvent("change_menu", "create_character"), "br_thin", null));
+
+                    components.MainScreen.TextInputs.Add(new TextInput("Enter Name..", new Vector2(20, Measurements.FullScreen.Y - Measurements.HalfScreen.Y-20), (int)Measurements.FullScreen.X - 40, 15, 2, "bronze", "centre", 10));
+                    components.MainScreen.Buttons.Add(new Button("DONE", "#lightyellow#DONE", new Vector2(40, Measurements.ThreeQuarterScreen.Y - 37), new Vector2(Measurements.FullScreen.X - 80, Measurements.EighthScreen.X), new ButtonSignalEvent("complete_character")));
+
+                    AddFade(components, isReload, 0.5);
+
+                    break;
+                case "save_options":
+                    components.MainScreen.Buttons.Add(new Button($"#lightgray#{master.storedDataManager.CurrentSaveFile.Name}", $"#lightgray#{master.storedDataManager.CurrentSaveFile.Name}", new Vector2(-10, -10), new Vector2(Measurements.FullScreen.X + 20, Measurements.EighthScreen.Y), new ButtonSignalEvent(), "br_thick", null, new Vector2(20, 10)));
+
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightred#<", new Vector2(5, 15), new Vector2(30, 30), new ButtonSignalEvent("change_menu", "save_select"), "br_thin", null));
+
+                    components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(Measurements.EighthScreen.X+25, Measurements.EighthScreen.Y), ContentLoader.UniqueImage(ContentLoader.Images["head_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[3]], 0), new Vector2(Measurements.ThreeQuarterScreen.X-50, (Measurements.ThreeQuarterScreen.X-50) * (30f / 16f))));
+                    components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(Measurements.EighthScreen.X+25, Measurements.EighthScreen.Y), ContentLoader.Images[master.storedDataManager.CurrentSaveFile.CharacterAppearance[0] + "_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[1]], new Vector2(Measurements.ThreeQuarterScreen.X-50, (Measurements.ThreeQuarterScreen.X-50) * (30f / 16f))));
+                    components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(Measurements.EighthScreen.X + 25, Measurements.EighthScreen.Y), ContentLoader.Images["eyes_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[2]], new Vector2(Measurements.ThreeQuarterScreen.X-50, (Measurements.ThreeQuarterScreen.X-50) * (30f / 16f))));
+                    components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(Measurements.EighthScreen.X + 25, Measurements.EighthScreen.Y), ContentLoader.Images["body_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[3]], new Vector2(Measurements.ThreeQuarterScreen.X-50, (Measurements.ThreeQuarterScreen.X-50) * (30f / 16f))));
+                    components.MainScreen.Buttons.Add(new Button("#lightgreen#PLAY", "#green#PLAY", new Vector2(40, Measurements.ThreeQuarterScreen.Y - 15), new Vector2(Measurements.FullScreen.X - 80, Measurements.EighthScreen.Y/2+10), new ButtonSignalEvent("change_menu", "world_map")));
+                    components.MainScreen.Buttons.Add(new Button("#lightred#DELETE", "#red#DELETE", new Vector2(40, Measurements.ThreeQuarterScreen.Y + Measurements.EighthScreen.Y/2+20), new Vector2(Measurements.FullScreen.X - 80, Measurements.EighthScreen.Y/2+10), new ButtonSignalEvent("change_menu","delete_character")));
+
+                    AddFade(components, isReload, 0.5);
+
+                    break;
+                case "delete_character":
+                    components.MainScreen.BasicComponents.Add(new TextBox("#red#ARE YOU SURE YOU WANT TO DELETE THIS CHARACTER? ", new Vector2(Measurements.QuarterScreen.X-15, Measurements.EighthScreen.Y), (int)Measurements.HalfScreen.X+30, "none", "centre"));
+                    components.MainScreen.BasicComponents.Add(new TextBox("TYPE THIS CHARACTER'S NAME TO CONFIRM DELETION ", new Vector2(Measurements.QuarterScreen.X, Measurements.QuarterScreen.Y + 40), (int)Measurements.HalfScreen.X, "none", "centre"));
+                    components.MainScreen.Buttons.Add(new Button("<", "#lightred#<", new Vector2(5, 15), new Vector2(30, 30), new ButtonSignalEvent("change_menu", "save_options"), "br_thin", null));
+
+                    components.MainScreen.TextInputs.Add(new TextInput("Confirm Name..", new Vector2(20, Measurements.FullScreen.Y - Measurements.HalfScreen.Y + 20), (int)Measurements.FullScreen.X - 40, 15, 0, "bronze", "centre", 10));
+                    components.MainScreen.Buttons.Add(new Button("#lightred#DELETE", "#red#DELETE", new Vector2(40, Measurements.ThreeQuarterScreen.Y), new Vector2(Measurements.FullScreen.X - 80, Measurements.EighthScreen.X), new ButtonSignalEvent("delete_character")));
+
+                    AddFade(components, isReload, 0.5);
+
+                    break;
+
+                case "world_map":
+                    Vector2 scrollFocusPos = master.worldManager.CurrentMap.MapAreas[master.entityManager.Player.CurrentArea].CenterPos;
+                    Vector2 startScroll = scrollFocusPos - Measurements.HalfScreen+ new Vector2(15,8);
+                    if (startScroll.X < 0)
+                        startScroll.X = 0;
+                    else if (startScroll.X > 960 - Measurements.FullScreen.X)
+                        startScroll.X = 960 - Measurements.FullScreen.X;
+                    if (startScroll.Y < 0)
+                        startScroll.Y = 0;
+                    else if (startScroll.Y > 960 - Measurements.FullScreen.Y)
+                        startScroll.Y = 960 - Measurements.FullScreen.Y;
+                    startScroll *= -1;
+
+                    // components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(-10, -10), ContentLoader.Images["burger_bar"], new Vector2(400, 400)));
+                    components.MainScreen.BasicComponents.Add(new TextBox(master.worldManager.CurrentMap.Name, new Vector2(17, 17), 1000, "none", "left", true));
+                    components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X - 45, 10), new Vector2(40, 40), new ButtonSignalEvent("change_menu", "save_select"), "br_outline_round", null));
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X - 100, 10), new Vector2(40, 40), new ButtonSignalEvent("change_menu", "inventory"), "br_outline_round", null));
+					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X - 44, 11), ContentLoader.Images["burger_bar"], new Vector2(36, 36)));
+					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X - 99, 11), ContentLoader.Images["backpack"], new Vector2(36, 36)));
+					/*
+                    components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X - 33, 70), new Vector2(21, 21), new ButtonSignalEvent("zoom", "in"), "br_outline_round", null));
+                    components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X - 32, 71), ContentLoader.Images["plus"], new Vector2(18, 18)));
+                    components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X - 35, 100), ContentLoader.Images["magnify"], new Vector2(24, 24)));
+                    components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X - 33, 135), new Vector2(21, 21), new ButtonSignalEvent("zoom", "out"), "br_outline_round", null));
+                    components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X - 32, 136), ContentLoader.Images["minus"], new Vector2(18, 18)));
+                    */
+					if (!isReload)
+                        AddFade(components, isReload, 0.5);
+                    if (master.worldManager.CurrentMap.Scrolls)
+                        components.Screens.Add(new ScrollScreen(new Vector2(0, 0), new Vector2(Measurements.FullScreen.X, Measurements.FullScreen.Y), new Vector2(0, 0), new Vector2(-960 + Measurements.FullScreen.X, Measurements.FullScreen.Y - 960), startScroll.ToPoint(),true, true));
+					else
+						components.Screens.Add(new ScrollScreen(new Vector2(0, 0), new Vector2(Measurements.FullScreen.X, Measurements.FullScreen.Y-960), new Vector2(0, 0), new Vector2(-480 + Measurements.FullScreen.X, Measurements.FullScreen.Y - 960), new Point((int)startScroll.X, 0), true, false));
+
+					Vector2 size = new Vector2(master.worldManager.CurrentMap.MapSize.Width, master.worldManager.CurrentMap.MapSize.Height);
+
+                    foreach (MapArea area in master.worldManager.CurrentMap.MapAreas.Values)
+                    {
+                        if (area.IsDiscovered)
+                            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(0, 0), area.Texture, size, 0.25f));
+                        if (area.Description == master.worldManager.CurrentMap.MapAreas[master.entityManager.Player.CurrentArea].Description)
+                        {
+                            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(0, 0), area.Texture, size));
+                            if (!master.IsMapMoving)
+                            {
+
+                                foreach (TravelButtonData travelButton in area.TravelButtons)
+                                {
+                                    components.Screens[0].Buttons.Add(new Button("", "", (travelButton.Position - new Vector2(10, 10)), new Vector2(21, 21), new ButtonSignalEvent("travel", ((int)travelButton.NextArea).ToString()+","+ ((int)travelButton.NextMap).ToString()), "blue_outline_round"));
+                                    components.Screens[0].BasicComponents.Add(new ImagePanel(travelButton.Position - new Vector2(9, 9), ContentLoader.Images[travelButton.ButtonDirection + "_arrow"], new Vector2(18, 18)));
+                                }
+                                foreach (MapInteractionButton interactionButton in area.InteractionButtons)
+                                {
+                                    components.Screens[0].InteractionButtons.Add(interactionButton);
+                                }
+                            }
+                        }
+
+                        // if active add a fading image over the faint one
+                    }
+                    Vector2 position = master.worldManager.CurrentMap.MapAreas[master.entityManager.Player.CurrentArea].CenterPos;
+                    if(!master.IsMapMoving)
+                        DrawPlayer(master, components, position);
+
+                    if (master.worldManager.CurrentNpc != "")
+                    {
+                        Npc npc = NpcInfo.Npcs[master.worldManager.CurrentNpc];
+						Dialog dialog = npc.Dialogs[npc.TalkStage][npc.CurrentDialog];
+						components.MainScreen.BackgroundComponents.Add(new ImagePanel(Vector2.Zero, ContentLoader.Images["blackout"], Measurements.FullScreen, 0.5f));
+                        ImagePanel image = new ImagePanel(new Vector2(Measurements.EighthScreen.X / 2, Measurements.ThreeQuarterScreen.Y - Measurements.QuarterScreen.X + 30), npc.Texture, new Vector2(Measurements.QuarterScreen.X, Measurements.QuarterScreen.X));
+
+                        if (isReload)
+                            components.MainScreen.BasicComponents.Add(image);
+                        else
+                            components.MainScreen.FadingImages.Add(new FadingImage(image, "in", 1));
+                        components.MainScreen.Buttons.Add(new Button("", "", new Vector2(-10, Measurements.ThreeQuarterScreen.Y+40), new Vector2(Measurements.FullScreen.X + 20, Measurements.QuarterScreen.Y + 110), new ButtonSignalEvent()));
+                        components.MainScreen.BasicComponents.Add(new TextBox("#lightbronze#"+npc.Dialogs[npc.TalkStage][npc.CurrentDialog].Text, new Vector2(5, Measurements.ThreeQuarterScreen.Y+50), (int)Measurements.FullScreen.X - 85, "none"));
+						if (dialog.Choice1 == null && dialog.Choice2 == null)
+                            components.MainScreen.Buttons.Add(new Button(">>>", "#gray#>>>", new Vector2(Measurements.HalfScreen.X+20, Measurements.ThreeQuarterScreen.Y-10), new Vector2(Measurements.HalfScreen.X -30, 30), new ButtonSignalEvent("npc", "continue")));
+						if (dialog.Choice1 != null)
+							components.MainScreen.Buttons.Add(new Button(dialog.Choice1.Text, "#bronze#" + dialog.Choice1.Text, new Vector2(Measurements.HalfScreen.X + 20, Measurements.ThreeQuarterScreen.Y - 10), new Vector2(Measurements.HalfScreen.X - 30, 30), new ButtonSignalEvent("npc", dialog.Choice1.Action), "br_outline_round"));
+						if (dialog.Choice2 != null)
+							components.MainScreen.Buttons.Add(new Button(dialog.Choice2.Text, "#bronze#" + dialog.Choice2.Text, new Vector2(Measurements.HalfScreen.X + 20, Measurements.ThreeQuarterScreen.Y - 60), new Vector2(Measurements.HalfScreen.X - 30, 30), new ButtonSignalEvent("npc", dialog.Choice2.Action), "br_outline_round"));
+					}
+
+					break;
+
+                case "inventory":
+					master.entityManager.Player.Inventory.AddItem("palm log");
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(-10, -10), new Vector2(Measurements.FullScreen.X + 20, Measurements.EighthScreen.Y), new ButtonSignalEvent(), "br_thick", null, new Vector2(20, 10)));
+
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(-10, Measurements.FullScreen.Y - Measurements.EighthScreen.Y + 10), new Vector2(Measurements.FullScreen.X + 20, Measurements.EighthScreen.Y), new ButtonSignalEvent(), "br_thick", null, new Vector2(0, 10)));
+					components.MainScreen.Buttons.Add(new Button("<", "#lightred#<", new Vector2(5, 15), new Vector2(30, Math.Min(30,Measurements.FullScreen.X/6)), new ButtonSignalEvent("change_menu", "world_map"), "br_thin", null));
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X / 6 * 1 + 3, 0), new Vector2(Measurements.FullScreen.X / 6 - 6, Measurements.EighthScreen.Y - 13), new ButtonSignalEvent(), "category_outline"));
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X / 6 * 2 + 3, 0), new Vector2(Measurements.FullScreen.X / 6 - 6, Measurements.EighthScreen.Y - 13), new ButtonSignalEvent(), "category_outline"));
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X / 6 * 3 + 3, 0), new Vector2(Measurements.FullScreen.X / 6 - 6, Measurements.EighthScreen.Y - 13), new ButtonSignalEvent(), "category_outline"));
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X / 6 * 4 + 3, 0), new Vector2(Measurements.FullScreen.X / 6 - 6, Measurements.EighthScreen.Y - 13), new ButtonSignalEvent(), "category_outline"));
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X / 6 * 5 + 3, 0), new Vector2(Measurements.FullScreen.X / 6 - 6, Measurements.EighthScreen.Y - 13), new ButtonSignalEvent(), "category_outline"));
+
+					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X / 6 * 1 + 7, 2), ContentLoader.Images["equipment"], new Vector2(29, 46)));
+					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X / 6 * 2 + 7, 2), ContentLoader.Images["armour_category"], new Vector2(29, 46)));
+					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X / 6 * 3 + 7, 2), ContentLoader.Images["weapon_category"], new Vector2(29, 46)));
+					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X / 6 * 4 + 7, 2), ContentLoader.Images["key_category"], new Vector2(29, 46)));
+					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X / 6 * 5 + 7, 2), ContentLoader.Images["misc_category"], new Vector2(29, 46)));
+
+
+					components.Screens.Add(new ScrollScreen(new Vector2(0, Measurements.EighthScreen.Y - 8), new Vector2(Measurements.FullScreen.X, Measurements.ThreeQuarterScreen.Y + 24), new Vector2(0, Measurements.EighthScreen.Y - 20), new Vector2(0, Measurements.EighthScreen.Y - master.entityManager.Player.Inventory.MaxItems/4 * Measurements.QuarterScreen.X+40), new Point(0, (int)Measurements.EighthScreen.Y -20), false, true));
+
+
+					for (int i = 0; i < 10; i++)
+					{
+						for (int j = 0; j < 4; j++)
+						{
+                            Inventory inventory = master.entityManager.Player.Inventory;
+							Vector2 pos = new Vector2(j*Measurements.QuarterScreen.X + 5, i * Measurements.QuarterScreen.X-40 + Measurements.EighthScreen.Y);
+                            if (inventory.Items.Count > i * 4 + j)
+                            {
+								components.Screens[0].BasicComponents.Add(new ImagePanel(pos + new Vector2(5), inventory.Items[i * 4 + j].Texture, new Vector2(Measurements.QuarterScreen.X - 20)));
+								components.Screens[0].Buttons.Add(new Button("", "", pos, new Vector2(Measurements.QuarterScreen.X - 10), new ButtonSignalEvent(), "br_outline_round"));
+							}
+                               
+
+							else
+								components.Screens[0].Buttons.Add(new Button("", "", pos, new Vector2(Measurements.QuarterScreen.X - 10), new ButtonSignalEvent("item_info", ), "br_outline_round"));
+						}
+					}
+
+					break;
+
             }
             return components;
         }
-        static private List<string> CheckWeaponUnlocked(List<string> list, string weaponName, MasterManager master)
+        static private GuiContent DrawPlayer(MasterManager master, GuiContent components, Vector2 position)
         {
-            //if (master.storedDataManager.CheckSkillUnlock(weaponName))
-            //    list.Add(weaponName);
-            return list;
+            Vector2 offset = Vector2.Zero;
+            components.Screens[0].BackgroundComponents.Add(new ImagePanel(position + offset, ContentLoader.UniqueImage(ContentLoader.Images["head_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[3]], 0), new Vector2(32, 60)));
+            components.Screens[0].BackgroundComponents.Add(new ImagePanel(position + offset, ContentLoader.Images[master.storedDataManager.CurrentSaveFile.CharacterAppearance[0] + "_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[1]], new Vector2(32, 60)));
+            components.Screens[0].BackgroundComponents.Add(new ImagePanel(position + offset, ContentLoader.Images["eyes_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[2]], new Vector2(32, 60)));
 
-        }
-        static private GuiContent AddWeaponSlots(bool isReload, MasterManager master, GuiContent components)
-        {
-            int x = 0;
-            int y = 0;
-            List<string> availableWeapons = new List<string>();
-            availableWeapons = CheckWeaponUnlocked(availableWeapons, "slash", master);
-            availableWeapons = CheckWeaponUnlocked(availableWeapons, "smash", master);
-            availableWeapons = CheckWeaponUnlocked(availableWeapons, "skew", master);
-            availableWeapons = CheckWeaponUnlocked(availableWeapons, "stab", master);
-            availableWeapons = CheckWeaponUnlocked(availableWeapons, "steel_fists", master);
-            availableWeapons = CheckWeaponUnlocked(availableWeapons, "bolt", master);
-
-            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(213, y+1), ContentLoader.Images["neutral_category_separator"], new Vector2(213, 32)));
-            components.Screens[0].BackgroundComponents.Add(new TextBox("#white#NEUTRAL", new Vector2(213+10, y+10), 213, "none"));
-            y += 1;
-            foreach(string weapon in availableWeapons)
-            {
-                components.Screens[0].Buttons.Add(new ButtonImage(new ImagePanel(new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), ContentLoader.Images["weapon_slot"]), new ImagePanel(new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), ContentLoader.Images["weapon_slot_hovered"]), new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), new Vector2(32, 32), new ButtonSignalEvent("change_weapon", weapon)));
-                components.Screens[0].BasicComponents.Add(new ImagePanel(new Vector2(213 + 7 + x * 35, 0 + 7 + y * 35), ContentLoader.Images[weapon]));
-                x += 1;
-                if (x > 6)
-                {
-                    y += 1;
-                    x = 0;
-                }
-            }
-            availableWeapons.Clear();
-            availableWeapons = CheckWeaponUnlocked(availableWeapons, "gold_fists", master);
-            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(213, (y+1)*35), ContentLoader.Images["light_category_separator"], new Vector2(213,32)));
-            components.Screens[0].BackgroundComponents.Add(new TextBox("#yellow#LIGHT", new Vector2(213 + 10, y*35 + 43), 213, "none"));
-            y += 1;
-            x = 0;
-            if (availableWeapons.Count != 0)
-                y += 1;
-            foreach (string weapon in availableWeapons)
-            {
-                components.Screens[0].Buttons.Add(new ButtonImage(new ImagePanel(new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), ContentLoader.Images["weapon_slot"]), new ImagePanel(new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), ContentLoader.Images["weapon_slot_hovered"]), new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), new Vector2(32, 32), new ButtonSignalEvent("change_weapon", weapon)));
-                components.Screens[0].BasicComponents.Add(new ImagePanel(new Vector2(213 + 7 + x * 35, 0 + 7 + y * 35), ContentLoader.Images[weapon]));
-                x += 1;
-                if (x > 6)
-                {
-                    y += 1;
-                    x = 0;
-                }
-            }
-
-            availableWeapons.Clear();
-            availableWeapons = CheckWeaponUnlocked(availableWeapons, "torch", master);
-            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(213, (y + 1) * 35), ContentLoader.Images["flame_category_separator"], new Vector2(213, 32)));
-            components.Screens[0].BackgroundComponents.Add(new TextBox("#orange#FLAME", new Vector2(213 + 10, y * 35 + 43), 213, "none"));
-            y += 1;
-            x = 0;
-            if (availableWeapons.Count != 0)
-                y += 1;
-            foreach (string weapon in availableWeapons)
-            {
-                components.Screens[0].Buttons.Add(new ButtonImage(new ImagePanel(new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), ContentLoader.Images["weapon_slot"]), new ImagePanel(new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), ContentLoader.Images["weapon_slot_hovered"]), new Vector2(213 + 3 + x * 35, 0 + 3 + y * 35), new Vector2(32, 32), new ButtonSignalEvent("change_weapon", weapon)));
-                components.Screens[0].BasicComponents.Add(new ImagePanel(new Vector2(213 + 7 + x * 35, 0 + 7 + y * 35), ContentLoader.Images[weapon]));
-                x += 1;
-                if (x > 6)
-                {
-                    y += 1;
-                    x = 0;
-                }
-            }
-            availableWeapons.Clear();
-
-            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(213, (y + 1) * 35), ContentLoader.Images["growth_category_separator"], new Vector2(213, 32)));
-            components.Screens[0].BackgroundComponents.Add(new TextBox("#green#GROWTH", new Vector2(213 + 10, y * 35 + 43), 213, "none"));
-            y += 1;
-            x = 0;
-            if (availableWeapons.Count != 0)
-                y += 1;
-            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(213, (y + 1) * 35), ContentLoader.Images["frost_category_separator"], new Vector2(213, 32)));
-            components.Screens[0].BackgroundComponents.Add(new TextBox("#blue#FROST", new Vector2(213 + 10, y * 35 + 43), 213, "none"));
-            y += 1;
-            x = 0;
-            if (availableWeapons.Count != 0)
-                y += 1;
-            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(213, (y + 1) * 35), ContentLoader.Images["shadow_category_separator"], new Vector2(213, 32)));
-            components.Screens[0].BackgroundComponents.Add(new TextBox("#purple#SHADOW", new Vector2(213 + 10, y * 35 + 43), 213, "none"));
-            y += 1;
-            x = 0;
-            if (availableWeapons.Count != 0)
-                y += 1;
-            components.Screens[0].BackgroundComponents.Add(new ImagePanel(new Vector2(213, (y + 1) * 35), ContentLoader.Images["torment_category_separator"], new Vector2(213, 32)));
-            components.Screens[0].BackgroundComponents.Add(new TextBox("#red#TORMENT", new Vector2(213 + 10, y * 35 + 43), 213, "none"));
-            y += 1;
-            x = 0;
-            if (availableWeapons.Count != 0)
-                y += 1;
             return components;
         }
         static private string AddCutsceneTrigger(MasterManager master, int level, string cutsceneName)
@@ -184,8 +341,8 @@ namespace LostLegend.States
             components.MainScreen.Buttons.Add(new Button("", "", new Vector2(8, 8), new Vector2(32, 16), new ButtonSignalEvent("change_menu", backMenu)));
 
             components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(7, 7), ContentLoader.Images["arrow_icon"]));
-            components.MainScreen.BasicComponents.Add(new TextBox(name, new Vector2(60, 12), 300, "black", true));
-            components.MainScreen.BasicComponents.Add(new TextBox(desc, new Vector2(20, 48), 200, "black", true));
+            components.MainScreen.BasicComponents.Add(new TextBox(name, new Vector2(60, 12), 300, "black"));
+            components.MainScreen.BasicComponents.Add(new TextBox(desc, new Vector2(20, 48), 200, "black"));
             components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(0, 0), ContentLoader.Images["stars"], new Vector2(426, 233)));
             components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(287, 50), ContentLoader.Images[name.Replace(' ','_')], new Vector2(120, 120)));
 
@@ -204,17 +361,8 @@ namespace LostLegend.States
                 else if (cost < 100000)
                     offset = new Vector2(15, 0);
                 //maybe possibility for 2 currencies to purchase later
-                if (isReload)
-                {
-                    components.MainScreen.Buttons.Add(new Button($"CANT AFFORD", $"#red#CANT AFFORD", new Vector2(60, 185), new Vector2(140, 32), new ButtonSignalEvent(), "button_red", "button_red_hovered", "button_red_clicked"));
-                }
                 else
                 {
-                    if (name != "info")
-                    {
-                        components.MainScreen.Buttons.Add(new Button($"#white#BUY: {cost}", $"#yellow#BUY: {cost}", new Vector2(60, 185), new Vector2(140, 32), new ButtonSignalEvent("purchase", name.Replace(' ', '_') + $"/{cost}/{currency}"), "button_yellow", "button_yellow_hovered", "button_yellow_clicked", true, new Vector2(-10, 0)));
-                        components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(152, 192) + offset, ContentLoader.Images[currency], new Vector2(16, 16)));
-                    }
                 }
             }
             else
@@ -229,9 +377,11 @@ namespace LostLegend.States
         {
             ImagePanel totalFadein = new ImagePanel(new Vector2(0, 0), ContentLoader.Images[image], Measurements.FullScreen);
             ImagePanel totalFadeout = new ImagePanel(new Vector2(0, 0), ContentLoader.Images[image], Measurements.FullScreen);
-            components.MainScreen.FadingImages.Add(new FadingImage(totalFadein, "in", time, false, 0, true));
             if (!isReload)
+            {
+                components.MainScreen.FadingImages.Add(new FadingImage(totalFadein, "in", time, false, 0, true));
                 components.MainScreen.FadingImages.Add(new FadingImage(totalFadeout, "out", time, true));
+            }
             return components;
         }
         static private string Rainbowify(string text)

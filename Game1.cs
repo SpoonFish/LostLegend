@@ -19,6 +19,7 @@ using LostLegend.Statics;
 using MonoGame.Extended.Input.InputListeners;
 using Microsoft.Xna.Framework.Input.Touch;
 using System.ComponentModel.Design;
+using Android.Content;
 
 namespace LostLegend
 {
@@ -31,6 +32,7 @@ namespace LostLegend
 
         private double timer;
 
+        private Context _context;
         private State _currentState;
         private State _nextState;
         private Song song;
@@ -40,8 +42,9 @@ namespace LostLegend
             _nextState = state;
         }
 
-        public Game1()
+        public Game1(Activity1 context)
         {
+            _context = context;
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
@@ -63,8 +66,10 @@ namespace LostLegend
             TouchPanel.EnabledGestures =
                 GestureType.Tap |
                 GestureType.VerticalDrag |
-                GestureType.VerticalDrag |
+                GestureType.HorizontalDrag |
+                GestureType.FreeDrag |
                 GestureType.None |
+                GestureType.Pinch | GestureType.PinchComplete |
                 GestureType.Hold;
 
             base.Initialize();
@@ -72,21 +77,24 @@ namespace LostLegend
 
         protected override void LoadContent()
         {
-            //this.song = Content.Load<Song>("Music/main_theme");
+            this.song = Content.Load<Song>("Music/Songs/titletheme");
             ContentLoader.LoadTextureDict(Content);
             ContentLoader.LoadColours();
+            NpcInfo.LoadNpcInfo();
+            ItemInfo.LoadItems();
             //LevelInfo.LoadLevelInfo();
             //Npcs.LoadNpcInfo();
             ContentLoader.LoadFont(Content, GraphicsDevice);
             //Effects.LoadEffects(Content);
 
             _masterManager = new MasterManager(Window, GraphicsDevice, _graphics, Content);
+            _masterManager.storedDataManager.CurrentContext = _context;
             Menus.LoadDefaultGuiComponents(_masterManager);
             Measurements.LoadMeasurements(_masterManager);
-            //MediaPlayer.Play(song);
+            MediaPlayer.Play(song);
             //  Uncomment the following line will also loop the song
-            //MediaPlayer.IsRepeating = true;
-            //MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.MediaStateChanged += MediaPlayer_MediaStateChanged;
             _currentState = new MenuState("opening1", _masterManager);//GameState();//
             _nextState = null;
             //Texture2D texture2 = Content.Load<Texture2D>("ContentLoader./Characters/player1");
@@ -101,11 +109,14 @@ namespace LostLegend
         {
             // 0.0f is silent, 1.0f is full volume
             MediaPlayer.Volume -= 0f;
-            MediaPlayer.Play(song);
+            //MediaPlayer.Play(song);
         }
+
+
 
         protected override void Update(GameTime gameTime)
         {
+
             //MediaPlayer.Volume = _masterManager.storedDataManager.Settings.MusicVolume / 100f;
             
             timer += gameTime.ElapsedGameTime.TotalSeconds;
@@ -163,12 +174,73 @@ namespace LostLegend
                         _masterManager.IsScreenTouched = true;
                         _masterManager.TouchPosAfter = gesture.Position/4;
                         break;
+                    case GestureType.VerticalDrag:
+                        if (_masterManager.ScrollMomentum < 0.95)
+                        {
+                            _masterManager.OrigScrollDif = Vector2.Zero;
+                            _masterManager.ScrollDif = Vector2.Zero;
+                        }
+                        else
+                        {
+                            _masterManager.ScrollDif = gesture.Position / 4 - _masterManager.ScrollPos;
+                            _masterManager.OrigScrollDif = gesture.Position / 4 - _masterManager.ScrollPos;
+                        }
+                        //_masterManager.IsScreenTouched = true;
+                        _masterManager.ScrollMomentum = 1f;
+                        _masterManager.ScrollPos = gesture.Position / 4;
+                        break;
+                    case GestureType.HorizontalDrag:
+                        if (_masterManager.ScrollMomentum < 0.95)
+                        {
+                            _masterManager.OrigScrollDif = Vector2.Zero;
+                            _masterManager.ScrollDif = Vector2.Zero;
+                        }
+                        else
+                        {
+                            _masterManager.ScrollDif = gesture.Position / 4 - _masterManager.ScrollPos;
+                            _masterManager.OrigScrollDif = gesture.Position / 4 - _masterManager.ScrollPos;
+                        }
+                        //_masterManager.IsScreenTouched = true;
+                        _masterManager.ScrollMomentum = 1f;
+                        _masterManager.ScrollPos = gesture.Position / 4;
+                        break;
+                    case GestureType.FreeDrag:
+                        if (_masterManager.ScrollMomentum < 0.95)
+                        {
+                            _masterManager.OrigScrollDif = Vector2.Zero;
+                            _masterManager.ScrollDif = Vector2.Zero;
+                        }
+                        else
+                        {
+                            _masterManager.ScrollDif = gesture.Position / 4 - _masterManager.ScrollPos;
+                            _masterManager.OrigScrollDif = gesture.Position / 4 - _masterManager.ScrollPos;
+                        }
+                        //_masterManager.IsScreenTouched = true;
+                        _masterManager.ScrollMomentum = 1f;
+                        _masterManager.ScrollPos = gesture.Position / 4;
+                        break;
+                    case GestureType.Pinch:
+                        if (_masterManager.ScrollMomentum < 0.95)
+                        {
+                            _masterManager.OrigScrollDif = Vector2.Zero;
+                            _masterManager.ScrollDif = Vector2.Zero;
+                        }
+                        else
+                        {
+                            _masterManager.ScrollDif = gesture.Position / 4 - _masterManager.ScrollPos;
+                            _masterManager.OrigScrollDif = gesture.Position / 4 - _masterManager.ScrollPos;
+                        }
+                        //_masterManager.IsScreenTouched = true;
+                        _masterManager.ScrollMomentum = 1f;
+                        _masterManager.ScrollPos = gesture.Position / 4;
+                        break;
                     default:
                         break;
                 }
             }
 
-
+            _masterManager.ScrollMomentum = Math.Max(0, _masterManager.ScrollMomentum - (float)gameTime.ElapsedGameTime.TotalSeconds);
+            _masterManager.ScrollDif = _masterManager.OrigScrollDif * _masterManager.ScrollMomentum;
             if (timer > 0.5)
                 timer = 0;
 
@@ -187,7 +259,7 @@ namespace LostLegend
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
-            GraphicsDevice.Clear(new Color(35, 25, 15));
+            GraphicsDevice.Clear(new Color(0,0,0));
             _currentState.Draw(_masterManager, _spriteBatch, GraphicsDevice);
             base.Draw(gameTime);
         }

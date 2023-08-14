@@ -38,9 +38,9 @@ namespace LostLegend.Graphics.GUI
                 {
                     component.Draw(spriteBatch, offset);
                 }
-                foreach (IGuiButton component in screen.Nodes)
+                foreach (MapInteractionButton component in screen.InteractionButtons)
                 {
-                    component.Draw(spriteBatch, offset);
+                    component.Draw(spriteBatch, master, offset);
                 }
 
                 foreach (FadingImage component in screen.FadingImages)
@@ -65,9 +65,9 @@ namespace LostLegend.Graphics.GUI
             {
                 component.Draw(spriteBatch);
             }
-            foreach (IGuiButton component in MainScreen.Nodes)
+            foreach (MapInteractionButton component in MainScreen.InteractionButtons)
             {
-                component.Draw(spriteBatch);
+                component.Draw(spriteBatch, master);
             }
 
             foreach (FadingImage component in MainScreen.FadingImages)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,13 +10,14 @@ namespace LostLegend.Graphics.GUI
         public List<IGuiComponent> BasicComponents;
         public List<IGuiComponent> BackgroundComponents;
         public List<IGuiButton> Buttons;
-        public List<IGuiButton> Nodes;
+        public List<MapInteractionButton> InteractionButtons;
         public List<TextInput> TextInputs;
         public List<FadingImage> FadingImages;
-
+        public Vector2 CurrentScroll;
         public GuiScreen()
         {
-            Nodes = new List<IGuiButton>();
+            InteractionButtons = new List<MapInteractionButton>();
+
             BackgroundComponents = new List<IGuiComponent>();
             BasicComponents = new List<IGuiComponent>();
             Buttons = new List<IGuiButton>();

@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace LostLegend.Graphics
 {
-    public class AnimatedTexture
+    class AnimatedTexture
     {
         public Texture2D Texture;
         public int Types;
@@ -35,6 +35,8 @@ namespace LostLegend.Graphics
 
             // How long in seconds each frame of the animation lasts in seconds
             FrameDuration = frameDuration;
+            if (FrameDuration > 100)
+                FrameDuration = 100000;
 
             // Width and height of one frame of the image, has 1px transparent padding to solve cropping issues so width/height must be subtracted by frames/types
             if (Frames > 1)
@@ -46,7 +48,7 @@ namespace LostLegend.Graphics
             else
                 Height = Texture.Height / Types;
 
-            if (FrameDuration == 0)
+            if (Frames == 1)
                 IsAnimated = false;
             else
                 IsAnimated = true;
@@ -67,7 +69,7 @@ namespace LostLegend.Graphics
         }
         public void Update(double timePassed)
         {
-            if (IsAnimated)
+            if (IsAnimated && FrameDuration > 0)
             {
                 FrameTimeCounter += timePassed;
                 // increment the current frame of the current animation of the image when its counter goes above the set length of a frame, then reset the counter.
@@ -78,11 +80,6 @@ namespace LostLegend.Graphics
                     if (CurrentFrame >= Frames)
                         CurrentFrame = 0;
                 }
-            }
-            else
-            {
-                CurrentFrame = 0;
-                CurrentType = 0;
             }
         }
      

@@ -15,7 +15,7 @@ namespace LostLegend
         ScreenOrientation = ScreenOrientation.FullUser,
         ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenSize
     )]
-    public class Activity1 : AndroidGameActivity
+    class Activity1 : AndroidGameActivity
     {
         private Game1 _game;
         private View _view;
@@ -24,7 +24,7 @@ namespace LostLegend
         {
             base.OnCreate(bundle);
 
-            _game = new Game1();
+            _game = new Game1(this);
             _view = _game.Services.GetService(typeof(View)) as View;
 
             SetContentView(_view);

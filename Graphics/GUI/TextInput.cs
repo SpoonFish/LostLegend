@@ -6,6 +6,13 @@ using Microsoft.Xna.Framework.Graphics;
 using LostLegend.Statics;
 using LostLegend.Graphics.GUI.Text;
 using Microsoft.Xna.Framework.Input;
+using Android.OS;
+using LostLegend.Graphics.GUI.Interactions;
+using Android.Hardware.Lights;
+using System.Threading.Tasks;
+using Android.Text.Style;
+using Android.Views.InputMethods;
+using System.Linq;
 
 namespace LostLegend.Graphics.GUI
 {
@@ -14,14 +21,18 @@ namespace LostLegend.Graphics.GUI
     {
         private Panel Box;
         private string DefaultText;
+        private string NoStyleDefaultText;
         public string Text;
         private string OrigText;
         public Vector2 Position;
 
         private int Width;
         private int MaxWidth;
+        private int Padding;
         private int MaxHeight;
         public bool Valid;
+        public bool AllowNumbers;
+        public string PopupTitle;
 
         private int MinCharacters;
         private int MaxCharacters;
@@ -34,139 +45,91 @@ namespace LostLegend.Graphics.GUI
         private bool CurrentlyHovered;
         private bool Active;
         private int Timer;
+        private string Alignment;
 
         private string BoxType;
-        public bool ScreenFixed;
         public List<LetterSprite> BoxImageText;
 
-        public TextInput(string defaultText, Vector2 position, int width, int maxCharacters, int minCharacters, string boxType = "button", string hoverBoxType = "button_hovered", string clickBoxType = "button_clicked", bool screenFixed = true)
+        public TextInput(string defaultText, Vector2 position, int width, int maxCharacters, int minCharacters, string boxType = "bronze", string textAlign = "left", int padding = 0, bool allowNumbers = true, string popupTitle = "")
 
         {
-            
+            Alignment = textAlign;
             Valid = false;
             MinCharacters = minCharacters;
             MaxCharacters = maxCharacters;
             Active = false;
-            OrigText = "#grey#" + defaultText.ToUpper();
+            Padding = padding;
+            OrigText = "#lightgray#" + defaultText;
             OrigBoxType = boxType;
-            HoverBoxType = hoverBoxType;
-            ClickBoxType = clickBoxType;
+            HoverBoxType = boxType;
+            ClickBoxType = boxType;
             BoxType = boxType;
-            ScreenFixed = screenFixed;
-            DefaultText = "#grey#" + defaultText.ToUpper();
+            NoStyleDefaultText = defaultText;
+            DefaultText = "#lightgray#" + defaultText;
             Position = position;
             Width = width;
+            CurrentlyClicked = false;
+            CurrentlyHovered = false;
             Text = "";
             MaxWidth = 0;
             Timer = 5;
-            MaxHeight = 0;
-            ScreenFixed = screenFixed;
+            MaxHeight = 20;
             BoxImageText = new List<LetterSprite>();
             LoadText(DefaultText);
-        }
-        public void OnInput(object sender, TextInputEventArgs e)
-        {
-            var k = e.Key;
-            var c = e.Character;
-            Text += c.ToString().ToUpper();
-            LoadText(Text);
-        }
+            ReloadText(DefaultText);
 
-        public static void Type(System.EventHandler<TextInputEventArgs> method, GameWindow window)
-        {
-            //window.TextInput += method;
         }
-        public static void UnType(System.EventHandler<TextInputEventArgs> method, GameWindow window)
+        public async void Update(Vector2 touchPos, bool isScreenTouched, GameTime gameTime)
         {
-
-           // window.TextInput -= method;
-        }
-        public void Update(Vector2 touchPos, bool isScreenTouched, GameTime gameTime)
-        {
-
-
-            if (Active)
+            if (Text.Length >= MinCharacters && Text.Length <= MaxCharacters && Text != DefaultText)
+                Valid = true;
+            else
             {
-                Keys[] keys = Keyboard.GetState().GetPressedKeys();
-                string prevText = Text;
-                Timer -= 1;
-                foreach (Keys key in keys)
-                {
-                    char typedChar = (char)key;
-                    if (Timer < 0)
-                    {
-                        Timer = 10;
-                        if (key == Keys.Back)
-                        {
-                            if (Text.Length > 0)
-                                Text = Text.Remove(Text.Length - 1, 1);
-                        }
-                        else
-                        {
-                            if ((char)key == (char)192)
-                                typedChar = '%';
-                            if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:'!?-+1234567890 %".Contains(typedChar))
-                                continue;
-                            Text += typedChar;
-                        }
-                    }
-                    break;
-
-                }
-                Text = Text.TrimStart();
-                string suffix = "#grey#X";
-                if (prevText != Text)
-                {
-                    string prefix = "";
-                    if (Text.Length < MinCharacters || Text.Length > MaxCharacters || Text.EndsWith(' '))
-                    {
-                        Valid = false;
-                        prefix = "#red#";
-                    }
-                    else
-                        Valid = true;
-                    LoadText(prefix + Text + suffix);
-                }
+                Valid = false;
             }
+            if (!AllowNumbers && Text.Any(char.IsDigit))
+                Valid = false;
                 
-            if (ClickArea.Contains(touchPos))
+
+            Rectangle OffsetClickArea = new Rectangle((int)Position.X-Padding, (int)Position.Y-Padding, Width+Padding*2, MaxHeight+Padding*2);
+            CurrentlyHovered = OffsetClickArea.Contains(touchPos);
+            if (OffsetClickArea.Contains(touchPos))
             {
                 BoxType = HoverBoxType;
 
-                if (isScreenTouched)
+                if (isScreenTouched && CurrentlyHovered == true)
                 {
-                    Text = "";
-                    DefaultText = "";
                     BoxType = ClickBoxType;
                     CurrentlyClicked = true;
-                    ReloadText("");
                 }
                 else if (!isScreenTouched)
                     CurrentlyHovered = true;
-
+                else
+                    return;
 
 
                 LoadBoxType();
 
-                if (isScreenTouched)
+                if (isScreenTouched && CurrentlyClicked && !KeyboardInput.IsVisible)
                 {
-                    Active = true;
+                    string extraText = ")";
+                    if (!AllowNumbers)
+                        extraText = ", You cannot use any numbers)";
+                    await Task.Run(async () => {
+                        var result = await KeyboardInput.Show(PopupTitle, $"Enter Text Below (Min length: {MinCharacters}, Max length: {MaxCharacters}" + extraText, ""); if (null != result)
+                        {
+                            //your method to set text goes here
+                            ReloadText(result.Trim());
+                        }
+                    });
+                    return;
                 }
             }
             else
             {
                 CurrentlyHovered = false;
-
-
-                if (isScreenTouched)
-                {
-                    DefaultText = OrigText;
-                    LoadText(DefaultText);
-                    Active = false;
-                    BoxType = OrigBoxType;
-                    LoadBoxType();
-                }
-                if (BoxType == HoverBoxType && Active == false)
+                CurrentlyClicked = false;
+                if (BoxType != OrigBoxType)
                 {
                     BoxType = OrigBoxType;
                     LoadBoxType();
@@ -178,20 +141,27 @@ namespace LostLegend.Graphics.GUI
         private void LoadText(string text)
         {
             BoxImageText.Clear();
+            MaxHeight = 0;
+            MaxWidth = Width;
             int lineX = 0;
             int lineY = 0;
+            int currentCharacterIndex = 0;
+            int currentLineWidth = 0;
+            int charactersInLine = 0;
             string colourString = "";
             Color currentColour = Color.White;
             bool searchingColour = false;
 
 
-            foreach (char letter in text)
+            for (int i = 0; i < Text.Length; i++)
             {
+                char letter = Text[i];
                 if (searchingColour)
                 {
                     if (letter == '#')
                     {
                         searchingColour = false;
+
                         try
                         {
                             currentColour = ContentLoader.Colours[colourString.ToLower()];
@@ -213,91 +183,96 @@ namespace LostLegend.Graphics.GUI
                         continue;
                     }
                     TextLetter image = ContentLoader.FontDict[' '];
-                    if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ.,:'!?-+1234567890% ".Contains(letter))
+                    if ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.,:+-=%()/><' ".Contains(letter))
                         image = ContentLoader.FontDict[letter];
                     else
                         continue;
 
-
-                    if (lineX + image.Texture.Width > Width && letter == ' ')
-                    {
-                        lineX = 0;
-                        lineY += 20;
-                        continue;
-                    }
                     LetterSprite letterSprite = new LetterSprite(image, new Vector2(lineX, lineY), currentColour);
                     lineX += image.Texture.Width + image.Spacing;
+                    currentLineWidth += image.Spacing;
+                    charactersInLine += 1;
+                    currentLineWidth += image.Texture.Width;
+                    if ((lineX + image.Texture.Width > Width && letter == ' ') || letter == '\\')
+                    {
+                        if (Alignment == "centre")
+                            for (int j = 0; j < charactersInLine - 1; j++)
+                            {
+                                BoxImageText[currentCharacterIndex - 1 - j].Position.X += (Width - currentLineWidth) / 2;
+                            }
+                        lineX = 0;
+                        charactersInLine = 0;
+                        currentLineWidth = 0;
+                        lineY += 20;
+                    }
+
                     if (MaxWidth < lineX)
                         MaxWidth = lineX;
-                    if (MaxHeight < lineY + 17)
-                        MaxHeight = lineY + 17;
-                    ClickArea = new Rectangle((int)Position.X - 2, (int)Position.Y - 2, MaxWidth + 4, MaxHeight + 4);
+                    if (MaxHeight < lineY + 20)
+                        MaxHeight = lineY + 20;
                     BoxImageText.Add(letterSprite);
+                    currentCharacterIndex += 1;
 
                 }
             }
+            Width += Padding * 2;
+            MaxHeight += Padding * 2;
             switch (BoxType)
             {
-                case "button":
-                    Box = new Panel(ContentLoader.Images["button"], new Vector2(Width, MaxHeight), 3);
+                case "bronze":
+                    Box = new Panel(ContentLoader.Images["bronze"], new Vector2(Width, MaxHeight), 6);
                     break;
-                case "button_hovered":
-                    Box = new Panel(ContentLoader.Images["button_hovered"], new Vector2(Width, MaxHeight), 3);
-                    break;
-                case "button_clicked":
-                    Box = new Panel(ContentLoader.Images["button_clicked"], new Vector2(Width, MaxHeight), 3);
-                    break;
-                case "button_red":
-                    Box = new Panel(ContentLoader.Images["button_red"], new Vector2(Width, MaxHeight), 3);
-                    break;
-                case "button_red_hovered":
-                    Box = new Panel(ContentLoader.Images["button_red_hovered"], new Vector2(Width, MaxHeight), 3);
-                    break;
-                case "button_red_clicked":
-                    Box = new Panel(ContentLoader.Images["button_red_clicked"], new Vector2(Width, MaxHeight), 3);
+                case "none":
+                    Box = new Panel(ContentLoader.Images["no_box"], new Vector2(Width, MaxHeight), 1);
                     break;
             }
 
-
+            Width -= Padding * 2;
+            MaxHeight -= Padding * 2;
 
         }
 
 
         public void ReloadText(string newText)
         {
+            if (newText == "")
+                newText = DefaultText;
             Text = newText;
             LoadText(Text);
+            
         }
 
         private void LoadBoxType()
         {
+            Width += Padding * 2;
+            MaxHeight += Padding * 2;
             switch (BoxType)
             {
-                case "button":
-                    Box = new Panel(ContentLoader.Images["button"], new Vector2(Width, MaxHeight), 3);
+                case "bronze":
+                    Box = new Panel(ContentLoader.Images["bronze"], new Vector2(Width, MaxHeight), 6);
                     break;
-                case "button_hovered":
-                    Box = new Panel(ContentLoader.Images["button_hovered"], new Vector2(Width, MaxHeight), 3);
+                case "br_thick":
+                    Box = new Panel(ContentLoader.Images["bronze_thick"], new Vector2(Width, MaxHeight), 8);
                     break;
-                case "button_clicked":
-                    Box = new Panel(ContentLoader.Images["button_clicked"], new Vector2(Width, MaxHeight), 3);
+                case "br_thin":
+                    Box = new Panel(ContentLoader.Images["bronze_thin"], new Vector2(Width, MaxHeight), 4);
                     break;
-                case "button_red":
-                    Box = new Panel(ContentLoader.Images["button_red"], new Vector2(Width, MaxHeight), 3);
+                case "none":
+                    Box = new Panel(ContentLoader.Images["no_box"], new Vector2(Width, MaxHeight), 1);
                     break;
-                case "button_red_hovered":
-                    Box = new Panel(ContentLoader.Images["button_red_hovered"], new Vector2(Width, MaxHeight), 3);
-                    break;
-                case "button_red_clicked":
-                    Box = new Panel(ContentLoader.Images["button_red_clicked"], new Vector2(Width, MaxHeight), 3);
+                default:
+                    Box = new Panel(ContentLoader.Images[BoxType], new Vector2(Width, MaxHeight), 3);
                     break;
             }
+
+            Width -= Padding * 2;
+            MaxHeight -= Padding * 2;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
             Vector2 origin = new Vector2(0, 0);
-            Box.Draw(spriteBatch, Position);
+            Box.Draw(spriteBatch, Position- new Vector2(Padding));
             foreach (LetterSprite letterSprite in BoxImageText)
             {
                 Texture2D image = letterSprite.Letter.Texture;
@@ -311,8 +286,10 @@ namespace LostLegend.Graphics.GUI
                 Rectangle sourceRectangle = new Rectangle(0, 0, width, height);
 
                 Rectangle destinationRectangle = new Rectangle((int)drawPos.X, (int)drawPos.Y, width, height);
-
-                spriteBatch.Draw(image, destinationRectangle, sourceRectangle, letterSprite.Colour, 0, origin, SpriteEffects.None, 1);
+                Color drawColour = letterSprite.Colour;
+                if (!Valid && Text != "" && Text != DefaultText)
+                    drawColour = ContentLoader.Colours["red"];
+                spriteBatch.Draw(image, destinationRectangle, sourceRectangle, drawColour, 0, origin, SpriteEffects.None, 1);
             }
         }
     }
