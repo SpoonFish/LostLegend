@@ -212,6 +212,9 @@ namespace LostLegend.Graphics.GUI
 				case "category_outline":
 					Box = new Panel(ContentLoader.Images["category_outline"], new Vector2(Width, Height), 3);
 					break;
+				case "category_outline_sl":
+					Box = new Panel(ContentLoader.Images["category_outline_selected"], new Vector2(Width, Height), 11);
+					break;
 				case "br_outline_round":
                     Box = new Panel(ContentLoader.Images["bronze_outline_round"], new Vector2(Width, Height), 4);
                     break;

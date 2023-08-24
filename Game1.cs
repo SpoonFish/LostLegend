@@ -79,7 +79,8 @@ namespace LostLegend
         {
             this.song = Content.Load<Song>("Music/Songs/titletheme");
             ContentLoader.LoadTextureDict(Content);
-            ContentLoader.LoadColours();
+			ContentLoader.LoadShaderDict(Content);
+			ContentLoader.LoadColours();
             NpcInfo.LoadNpcInfo();
             ItemInfo.LoadItems();
             //LevelInfo.LoadLevelInfo();

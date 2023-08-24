@@ -37,6 +37,7 @@ namespace LostLegend.Graphics.GUI
             ScrollWheel = usesScrollWheel;
             ClickArea = new Rectangle((int)Position.X, (int)Position.Y, (int)Size.X, (int)Size.Y);
             MaxScroll = maxScroll;
+            Entities = new List<GuiEntity> ();
             MinScroll = minscroll;
             AddedPrevScroll = new Vector2();
             AddedPrevScroll2 = new Vector2();
@@ -97,7 +98,10 @@ namespace LostLegend.Graphics.GUI
             //if (Math.Abs(dxScroll) + Math.Abs(dyScroll) == 0)
               //  return;
             
-            CurrentScroll = KeyboardScroll; //inverting polarity because offset gets added not deducted
+            CurrentScroll = KeyboardScroll;
+            if (!ScrollHorizontal)
+                CurrentScroll.X = 0;
+            if (!ScrollVertical) CurrentScroll.Y = 0;
         }
     }
 }

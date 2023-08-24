@@ -41,12 +41,14 @@ namespace LostLegend.Master
         public EntityManager entityManager;
         public WorldManager worldManager;
 
+		public Point SavedScroll;
 
-        //public StoredDataManager storedDataManager;
+		//public StoredDataManager storedDataManager;
 
-        public MasterManager(GameWindow window, GraphicsDevice graphics, GraphicsDeviceManager graphicsDeviceManager, ContentManager content)
-        {
-            IsMapMoving = false;
+		public MasterManager(GameWindow window, GraphicsDevice graphics, GraphicsDeviceManager graphicsDeviceManager, ContentManager content)
+		{
+			SavedScroll = new Point();
+			IsMapMoving = false;
             PreviousWorldPos = new Vector2(0, 0);
             ScrollMomentum = 0;
             ScreenSize = new Vector2((graphics.DisplayMode.Width), (int)(graphics.DisplayMode.Height))/4;

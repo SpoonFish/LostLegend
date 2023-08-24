@@ -29,8 +29,12 @@ namespace LostLegend.Graphics.GUI
                 foreach (TextInput component in screen.TextInputs)
                 {
                     component.Draw(spriteBatch);//doubt we will ever use offset for these components
-                }
-                foreach (IGuiButton component in screen.Buttons)
+				}
+				foreach (GuiEntity component in screen.Entities)
+				{
+					component.Draw(spriteBatch, offset);
+				}
+				foreach (IGuiButton component in screen.Buttons)
                 {
                     component.Draw(spriteBatch, offset);
                 }
@@ -57,7 +61,12 @@ namespace LostLegend.Graphics.GUI
             {
                 component.Draw(spriteBatch);
             }
-            foreach (IGuiButton component in MainScreen.Buttons)
+
+			foreach (GuiEntity component in MainScreen.Entities)
+			{
+				component.Draw(spriteBatch);
+			}
+			foreach (IGuiButton component in MainScreen.Buttons)
             {
                 component.Draw(spriteBatch);
             }

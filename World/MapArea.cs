@@ -1,5 +1,6 @@
 ﻿using LostLegend.Graphics;
 using LostLegend.Graphics.GUI;
+using LostLegend.Statics;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -17,11 +18,13 @@ namespace LostLegend.World
         public bool IsActive;
         public Vector2 CenterPos;
         public AnimatedTexture Texture;
+        public List<MapInfo.MapAreaActions> Actions;
         public List<TravelButtonData> TravelButtons;
         public List<MapInteractionButton> InteractionButtons;
 
-        public MapArea(string name, string desc, bool discovered, AnimatedTexture texture, Vector2 centerPos, List<TravelButtonData> travelButtons, List<MapInteractionButton> interactionButtons) 
+        public MapArea(string name, string desc, bool discovered, AnimatedTexture texture, Vector2 centerPos, List<TravelButtonData> travelButtons, List<MapInteractionButton> interactionButtons, List<MapInfo.MapAreaActions> actions) 
         {
+            Actions = actions;
             InteractionButtons = interactionButtons;
             TravelButtons = travelButtons;
             IsActive = false;

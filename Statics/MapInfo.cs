@@ -13,8 +13,14 @@ using System.Threading.Tasks;
 namespace LostLegend.Statics
 {
     static class MapInfo
-    {
-        public enum MapAreaIDs { 
+	{
+		public enum MapAreaActions
+		{
+			Fight,
+            Boss,
+            Harvest
+		};
+		public enum MapAreaIDs { 
             EastLithramBeach,
             CentralLithramVillage,
             OuterLithramVillage,
@@ -55,8 +61,14 @@ namespace LostLegend.Statics
                         new List<MapInteractionButton>()
                         {
                             new MapInteractionButton(new Vector2(177,437), new ButtonSignalEvent(), "lithram_house")
-                        }
-                    )
+                        },
+						new List<MapAreaActions>()
+						{
+							MapAreaActions.Fight,
+                            MapAreaActions.Harvest
+						}
+
+					)
                 );
 
             Maps[MapIDs.Island1].MapAreas.Add(
@@ -78,8 +90,11 @@ namespace LostLegend.Statics
                             new MapInteractionButton(new Vector2(160,235), new ButtonSignalEvent(), "lithram_fish_shop"),
                             new MapInteractionButton(new Vector2(244,271), new ButtonSignalEvent(), "lithram_food_shop"),
                             new MapInteractionButton(new Vector2(129,324), new ButtonSignalEvent("change_map", "weapon_shop"), "lithram_weapon_shop"),
-                        }
-                    )
+						},
+						new List<MapAreaActions>()
+						{
+						}
+					)
                 );
 
             Maps[MapIDs.Island1].MapAreas.Add(
@@ -98,8 +113,18 @@ namespace LostLegend.Statics
                         new List<MapInteractionButton>()
                         {
                             new MapInteractionButton(new Vector2(364,203), new ButtonSignalEvent(), "lithram_armour_shop")
-                        }
-                    )
+                        },
+						new List<MapAreaActions>()
+						{
+							MapAreaActions.Fight,
+
+							MapAreaActions.Fight,
+
+							MapAreaActions.Fight,
+
+							MapAreaActions.Fight
+						}
+					)
                 );
 
             Maps[MapIDs.Island1].MapAreas.Add(
@@ -117,8 +142,12 @@ namespace LostLegend.Statics
                         },
                         new List<MapInteractionButton>()
                         {
-                        }
-                    )
+                        },
+						new List<MapAreaActions>()
+						{
+                            MapAreaActions.Fight
+						}
+					)
                 );
 
             Maps[MapIDs.WeaponShop].MapAreas.Add(
@@ -136,8 +165,13 @@ namespace LostLegend.Statics
                         new List<MapInteractionButton>()
                         {
                             new MapInteractionButton(new Vector2(240-105,240-80), new ButtonSignalEvent("npc_interact", "blacksmith"), "blacksmith", new Vector2(32,32))
-                        }
-                    )
+                        },
+						new List<MapAreaActions>()
+						{
+							MapAreaActions.Fight,
+							MapAreaActions.Fight
+						}
+					)
                 ) ;
         }
     }

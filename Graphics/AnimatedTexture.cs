@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using LostLegend.Statics;
+using Android.Icu.Number;
 
 namespace LostLegend.Graphics
 {
@@ -82,11 +84,13 @@ namespace LostLegend.Graphics
                 }
             }
         }
-     
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 position, float opacity = 1f, Vector2 size = new Vector2(), float rotation = 0)
+
+        public void Draw(SpriteBatch spriteBatch, Vector2 position, float opacity = 1f, Vector2 size = new Vector2(), float rotation = 0, string outlineColour = null)
         {
-            if (size == Vector2.Zero)
+
+
+			if (size == Vector2.Zero)
                 size = new Vector2(Width, Height);
             Rectangle sourceRectangle;
             Rectangle destinationRectangle;
@@ -114,10 +118,42 @@ namespace LostLegend.Graphics
             else
                 origin = new Vector2(destinationRectangle.Width / 2, destinationRectangle.Height / 2);
 
-            if (opacity == 1)
+			if (outlineColour != null)
+			{
+				opacity = 1;
+				Matrix matrix = Matrix.CreateScale(4, 4, 0f);
+				spriteBatch.End();
+				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, transformMatrix: matrix, samplerState: SamplerState.PointClamp);
+                switch(outlineColour)
+                {
+                    case "green":
+						ContentLoader.Shaders["green_outline"].CurrentTechnique.Passes[0].Apply();
+						break;
+					default:
+						ContentLoader.Shaders["white_outline"].CurrentTechnique.Passes[0].Apply();
+                        break;
+				}
+                for (int x = -1;  x < 2; x++) 
+                {
+
+					for (int y = -1; y < 2; y++)
+					{
+
+						spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White, rotation, origin + new Vector2(x,y), SpriteEffects.None, 1);
+					}
+				}
+                spriteBatch.End();
+				spriteBatch.Begin(transformMatrix: matrix, samplerState: SamplerState.PointClamp);
+			}
+			if (opacity == 1)
+            {
                 spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White, rotation, origin, SpriteEffects.None, 1);
+            }
             else
                 spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White * opacity, rotation, origin, SpriteEffects.None, 1);
+
+
+
         }
     }
 }

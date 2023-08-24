@@ -14,6 +14,33 @@ namespace LostLegend.Entities.Parts
 		public float Mp;
 		public float MaxMp;
 		public float OrigMaxMp;
-		public float Damage;
+		public float Strength;
+		public float Defence;
+		public float OrigStrength;
+		public float OrigDefence;
+
+		public StatsHolder(float hp =0, float maxHp=0, float mp=0, float maxMp=0, float strength=0, float defence=0)
+		{
+			Hp = hp;
+			MaxHp = maxHp;
+			OrigMaxHp = maxHp;
+			Mp = mp;
+			MaxMp = maxMp;
+			OrigMaxMp = maxMp;
+			Strength = strength;
+			OrigStrength = strength;
+			Defence = defence;
+			OrigDefence = defence;
+		}
+
+		public void Add(StatsHolder stats)
+		{
+			Hp += stats.Hp;
+			MaxHp += stats.MaxHp;
+			Mp += stats.Mp;
+			MaxMp += stats.MaxMp;
+			Strength += stats.Strength;
+			Defence += stats.Defence;
+		}
 	}
 }

@@ -55,7 +55,86 @@ namespace LostLegend.States
             {
                 switch (signal.Action)
 				{
-                    case "block":
+					case "select_attack":
+                        master.entityManager.Player.SelectedAttack = "running_slash";
+						
+						UnloadMenu();
+						LoadMenu("battle", master, true);
+						return true;
+					case "equip":
+						ItemInfo.ItemTypes type = ItemInfo.ItemDict[signal.Subject.Split(',')[0]].Type;
+                        int itemIndex = int.Parse(signal.Subject.Split(',')[1]);
+						if (type == ItemInfo.ItemTypes.Sword || type == ItemInfo.ItemTypes.Musical || type == ItemInfo.ItemTypes.Gloves || type == ItemInfo.ItemTypes.Wand)
+						{
+							master.entityManager.Player.Equipment.Weapon = itemIndex;
+						}
+						else if (type == ItemInfo.ItemTypes.Head)
+						{
+							master.entityManager.Player.Equipment.Head = itemIndex;
+						}
+						else if (type == ItemInfo.ItemTypes.Chest)
+						{
+							master.entityManager.Player.Equipment.Chest = itemIndex;
+						}
+						else if (type == ItemInfo.ItemTypes.Legs)
+						{
+							master.entityManager.Player.Equipment.Legs = itemIndex;
+						}
+						UnloadMenu();
+						LoadMenu("inventory", master, true);
+						return true;
+					case "unequip":
+                        ItemInfo.ItemTypes utype = ItemInfo.ItemDict[signal.Subject].Type;
+                        if( utype == ItemInfo.ItemTypes.Sword ||utype == ItemInfo.ItemTypes.Musical || utype == ItemInfo.ItemTypes.Gloves || utype == ItemInfo.ItemTypes.Wand)
+                        {
+                            master.entityManager.Player.Equipment.Weapon = -1;
+						}
+						else if (utype == ItemInfo.ItemTypes.Head)
+						{
+							master.entityManager.Player.Equipment.Head = -1;
+						}
+						else if (utype == ItemInfo.ItemTypes.Chest)
+						{
+							master.entityManager.Player.Equipment.Chest = -1;
+						}
+						else if (utype == ItemInfo.ItemTypes.Legs)
+						{
+							master.entityManager.Player.Equipment.Legs = -1;
+						}
+						UnloadMenu();
+						LoadMenu("inventory", master, true);
+						return true;
+					case "change_inv_cat":
+						master.entityManager.Player.Inventory.CurrentCategory = signal.Subject;
+						UnloadMenu();
+						LoadMenu("inventory", master);
+
+						return true;
+					case "item_info":
+                        if (signal.Subject == "clear")
+                        {
+
+							master.entityManager.Player.Inventory.SelectedIndex = -1;
+							master.entityManager.Player.Inventory.SelectedItem = "";
+							UnloadMenu();
+							LoadMenu("inventory", master, true);
+							return true;
+                        }
+						if (master.entityManager.Player.Inventory.SelectedIndex == int.Parse(signal.Subject.Split(',')[1]))
+						{
+                            master.entityManager.Player.Inventory.SelectedIndex = -1;
+							master.entityManager.Player.Inventory.SelectedItem = "";
+							UnloadMenu();
+							LoadMenu("inventory", master, true);
+							return true;
+						}
+						master.entityManager.Player.Inventory.SelectedItem = signal.Subject.Split(',')[0];
+						master.entityManager.Player.Inventory.SelectedIndex = int.Parse(signal.Subject.Split(',')[1]);
+						UnloadMenu();
+						LoadMenu("inventory", master, true);
+
+						return true;
+					case "block":
                         return true;
 					case "npc":
 						Npc npc = NpcInfo.Npcs[master.worldManager.CurrentNpc];
@@ -545,6 +624,7 @@ namespace LostLegend.States
 
             foreach (ScrollScreen screen in Components.Screens)
             {
+                master.SavedScroll = screen.CurrentScroll.ToPoint();
                 screen.Update(master.TouchPos, master.ScrollDif, master.ScrollMomentum);
             }
 
@@ -564,6 +644,11 @@ namespace LostLegend.States
                     
                     ButtonSignalEvent signal = interactionButton.Update(master.TouchPos, master.TouchPosAfter, master.IsScreenTouched, screen.CurrentScroll.ToPoint());
                     CheckSignal(master, signal, game);
+                }
+
+                foreach (GuiEntity entity in screen.Entities)
+                {
+                    entity.Update(master, screen.CurrentScroll);
                 }
 
             }
@@ -628,6 +713,7 @@ namespace LostLegend.States
             graphicsDevice.SetRenderTarget(null);
             //graphicsDevice.SetRenderTarget(normScreen);
             spriteBatch.Begin(transformMatrix: matrix, samplerState: SamplerState.PointClamp);
+            //ContentLoader.Shaders["white_outline"].CurrentTechnique.Passes[0].Apply();
             //_spriteBatch.Draw(_text.BoxImage, _text.Position, Color.White);
 
             if (master.IsMapMoving)

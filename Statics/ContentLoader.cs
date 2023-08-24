@@ -14,12 +14,14 @@ namespace LostLegend.Statics
     {
         public static Dictionary<string, Color> Colours = new Dictionary<string,Color>();
 
-        public static Dictionary<string, AnimatedTexture> Images = new Dictionary<string, AnimatedTexture>();
+		public static Dictionary<string, Effect> Shaders = new Dictionary<string, Effect>();
+		public static Dictionary<string, AnimatedTexture> Images = new Dictionary<string, AnimatedTexture>();
         public static Dictionary<char, TextLetter> FontDict = new Dictionary<char, TextLetter>();
 
         //load all ContentLoader. in the content from this string which has extra data about the animations
         public static void LoadColours()
 		{
+			Colours.Add("whitebronze", new Color(244, 202, 183));
 			Colours.Add("lightbronze", new Color(194, 142, 123));
 			Colours.Add("bronze", new Color(174,122,103));
 			Colours.Add("main", new Color(109,129,148));
@@ -38,6 +40,11 @@ namespace LostLegend.Statics
             string imageData =
 //name , frames, speed, ani types
 @"
+Character/head_palm_hat,4,1000,1
+Character/head_guard_helm,4,1000,1
+Character/chest_leaf_shirt,4,1000,1
+Character/legs_gray_shorts,4,1000,1
+
 Character/head_tone1,4,1000,1
 Character/body_tone1,4,1000,1
 Character/head_tone2,4,1000,1
@@ -70,6 +77,9 @@ Character/hair2_gray,4,1000,1
 Character/hair2_blond,4,1000,1
 
 Items/palm_log,1,0,1
+Items/palm_sword,1,0,1
+Items/palm_hat,1,0,1
+Items/guard_helm,1,0,1
 
 test,1,0,1
 test2,1,0,1
@@ -79,14 +89,19 @@ spoonfishstudios_logo,1,0,1
 GUI/PanelStyles/no_box,1,0,1
 GUI/PanelStyles/bronze,1,0,1
 GUI/PanelStyles/category_outline,1,0,1
+GUI/PanelStyles/category_outline_selected,1,0,1
 GUI/PanelStyles/bronze_thin,1,0,1
 GUI/PanelStyles/bronze_thick,1,0,1
 GUI/PanelStyles/bronze_outline,1,0,1
 GUI/PanelStyles/bronze_outline_round,1,0,1
 GUI/PanelStyles/blue_outline_round,1,0,1
 GUI/PanelStyles/bronze_outline_round_light,1,0,1
+GUI/PanelStyles/green_outline,1,0,1
+GUI/PanelStyles/red_outline,1,0,1
 
 GUI/Menu/blackout,1,0,1
+GUI/Menu/item_gradient_bg,1,0,1
+GUI/Menu/gradient_edge,1,0,1
 
 GUI/Npc/blacksmith,1,0,1
 
@@ -96,6 +111,7 @@ GUI/Icons/armour_category,1,0,1
 GUI/Icons/weapon_category,1,0,1
 GUI/Icons/backpack,1,0,1
 GUI/Icons/burger_bar,1,0,1
+GUI/Icons/stats,1,0,1
 GUI/Icons/plus,1,0,1
 GUI/Icons/magnify,1,0,1
 GUI/Icons/minus,1,0,1
@@ -115,6 +131,7 @@ GUI/Icons/lithram_weapon_shop_icon,1,0,1
 GUI/Icons/lithram_armour_shop_icon,1,0,1
 GUI/Icons/lithram_fish_shop_icon,1,0,1
 
+Map/Battles/battle_lithram_beach,1,0,1
 
 Map/weapon_shop,1,0,1
 Map/Island1/island1_background,1,0,1
@@ -122,6 +139,8 @@ Map/Island1/east_lithram_beach,1,0,1
 Map/Island1/central_lithram_village,1,0,1
 Map/Island1/outer_lithram_village,1,0,1
 Map/Island1/sea_cave_beach,1,0,1
+
+Entities/crab,1,0,1
 ";
             string[] imageDataList = imageData.Split("\r\n");
             foreach (string image in imageDataList)
@@ -140,7 +159,27 @@ Map/Island1/sea_cave_beach,1,0,1
             }
         }
 
-        public static void LoadFont(Microsoft.Xna.Framework.Content.ContentManager content, GraphicsDevice graphicsDevice)
+
+		public static void LoadShaderDict(Microsoft.Xna.Framework.Content.ContentManager content)
+		{
+			string shaderData =
+//name
+@"
+white_outline
+green_outline
+";
+			string[] shaderDataList = shaderData.Split("\r\n");
+			foreach (string shader in shaderDataList)
+			{
+				if (shader == "")
+					continue;
+				shader.Replace("\n", "");//remove newline
+
+				Shaders.Add(shader, content.Load<Effect>("Shaders/" + shader));
+			}
+		}
+
+		public static void LoadFont(Microsoft.Xna.Framework.Content.ContentManager content, GraphicsDevice graphicsDevice)
         {
             int totalWidth = 0;
             Texture2D fontImage = content.Load<Texture2D>("Images/font");
