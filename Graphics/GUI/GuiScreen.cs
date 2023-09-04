@@ -14,7 +14,7 @@ namespace LostLegend.Graphics.GUI
 		public List<MapInteractionButton> InteractionButtons;
         public List<TextInput> TextInputs;
         public List<FadingImage> FadingImages;
-        public Vector2 CurrentScroll;
+		public Vector2 CurrentScroll;
         public GuiScreen()
         {
             InteractionButtons = new List<MapInteractionButton>();

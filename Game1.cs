@@ -82,6 +82,7 @@ namespace LostLegend
 			ContentLoader.LoadShaderDict(Content);
 			ContentLoader.LoadColours();
             NpcInfo.LoadNpcInfo();
+            AttackInfo.LoadAttacks();
             ItemInfo.LoadItems();
             //LevelInfo.LoadLevelInfo();
             //Npcs.LoadNpcInfo();

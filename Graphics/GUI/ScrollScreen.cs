@@ -60,7 +60,8 @@ namespace LostLegend.Graphics.GUI
                 return;
             }
 
-
+            if (!ClickArea.Contains(touchPos))
+                return;
             KeyboardScroll += scrollDif;
 
 

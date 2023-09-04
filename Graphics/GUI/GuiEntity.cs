@@ -10,12 +10,15 @@ namespace LostLegend.Graphics.GUI
 {
     abstract class GuiEntity
     {
-        public virtual void Update(MasterManager master, Vector2 currentScroll)
+        public virtual void Update(MasterManager master, Vector2 currentScroll = new Vector2())
         {
 
         }
         public virtual void Draw(SpriteBatch spriteBatch, Vector2 offset = new Vector2(), float opacity = 1)
         {
-        }
-    }
+		}
+		public virtual void SetPos(Vector2 pos)
+		{
+		}
+	}
 }

@@ -84,5 +84,14 @@ namespace LostLegend.Graphics.GUI
                 component.Draw(spriteBatch);
             }
         }
-    }
+
+		public void SetPlayerPos(Vector2 position)
+		{
+            MainScreen.Entities[0].SetPos(position);
+		}
+		public void SetMonsterPos(Vector2 position, int index)
+		{
+			MainScreen.Entities[1+index].SetPos(position);
+		}
+	}
 }

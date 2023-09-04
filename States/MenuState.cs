@@ -9,6 +9,9 @@ using System;
 using System.Collections.Generic;
 using LostLegend.Statics;
 using LostLegend.World;
+using LostLegend.Entities.Parts;
+using LostLegend.Entities;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LostLegend.States
 {
@@ -55,9 +58,31 @@ namespace LostLegend.States
             {
                 switch (signal.Action)
 				{
+					case "exit_fight":
+						master.entityManager.ResetBattle();
+						UnloadMenu();
+						LoadMenu("world_map", master, true);
+						return true;
+					case "start_fight":
+                        master.entityManager.ResetBattle();
+						UnloadMenu();
+						LoadMenu("battle", master, true);
+						return true;
+					case "attack":
+                        master.entityManager.TriggerTurnCycle();
+						UnloadMenu();
+						LoadMenu("battle", master, true);
+						return true;
 					case "select_attack":
-                        master.entityManager.Player.SelectedAttack = "running_slash";
-						
+                        if (master.entityManager.Player.SelectedAttack == null)
+                        {
+
+							master.entityManager.Player.SelectedAttack = AttackInfo.AttackDict[signal.Subject];
+						}
+						else
+							master.entityManager.Player.SelectedAttack = null;
+
+						master.entityManager.SelectedMonsterIndex = -1;
 						UnloadMenu();
 						LoadMenu("battle", master, true);
 						return true;
@@ -108,6 +133,12 @@ namespace LostLegend.States
 						master.entityManager.Player.Inventory.CurrentCategory = signal.Subject;
 						UnloadMenu();
 						LoadMenu("inventory", master);
+
+						return true;
+					case "change_battle_category":
+						master.entityManager.CurrentBattleMenuCategory = signal.Subject;
+						UnloadMenu();
+						LoadMenu("battle", master);
 
 						return true;
 					case "item_info":
@@ -585,8 +616,38 @@ namespace LostLegend.States
 
         public override void Update(MasterManager master, GameTime gameTime, Game1 game, GraphicsDevice graphicsDevice)
         {
-           // if (Components.MainScreen.Buttons.Count == 2)
-           //     Components.MainScreen.Buttons[0] = new Button($"{Components.Screens[0].CurrentScroll.Y}", "", new Vector2(), new Vector2(Measurements.FullScreen.X, 90), new ButtonSignalEvent());
+            // if (Components.MainScreen.Buttons.Count == 2)
+            //     Components.MainScreen.Buttons[0] = new Button($"{Components.Screens[0].CurrentScroll.Y}", "", new Vector2(), new Vector2(Measurements.FullScreen.X, 90), new ButtonSignalEvent());
+            if (master.entityManager.Player != null)
+            {
+
+                bool reload = master.entityManager.TurnPassing;
+                master.entityManager.Update(master);
+                if (reload != master.entityManager.TurnPassing)
+                {
+                    UnloadMenu();
+                    LoadMenu("battle", master, true);
+                }
+                if (master.entityManager.Player.Attacking || master.entityManager.Player.BeingAttacked)
+                    Components.SetPlayerPos(master.entityManager.Player.Position);
+                for (int i = 0; i<master.entityManager.MonsterEntities.Count; i++)
+                {
+                    MonsterEntity entity = master.entityManager.MonsterEntities[i];
+
+					if (entity.Attacking || entity.BeingAttacked)
+                        Components.SetMonsterPos(entity.Position, i); 
+                }
+			}
+
+            for (int i = master.entityManager.RisingTexts.Count-1; i >= 0; i --)
+            {
+                RisingText text = master.entityManager.RisingTexts[i];
+
+				text.Update(master.timePassed);
+                if (text.Opacity < 0.001)
+                    master.entityManager.RisingTexts.Remove(text);
+
+            }
             foreach (FadingImage image in Components.MainScreen.FadingImages)
             {
                 string possibleNextMenu = image.Update(gameTime);
@@ -622,13 +683,19 @@ namespace LostLegend.States
                 input.Update(master.TouchPos, master.IsScreenTouched, gameTime);
             }
 
-            foreach (ScrollScreen screen in Components.Screens)
+            for (int i = 0; i < Components.Screens.Count; i ++)
             {
-                master.SavedScroll = screen.CurrentScroll.ToPoint();
+				ScrollScreen screen = (ScrollScreen)Components.Screens[i];
+                if (i == 0)
+				    master.SavedScroll = screen.CurrentScroll.ToPoint();
                 screen.Update(master.TouchPos, master.ScrollDif, master.ScrollMomentum);
             }
 
-            List<IGuiButton> mainButtons = Components.MainScreen.Buttons;
+			foreach (GuiEntity entity in Components.MainScreen.Entities)
+			{
+				entity.Update(master);
+			}
+			List<IGuiButton> mainButtons = Components.MainScreen.Buttons;
             CheckButtons(master, game, mainButtons);
             for (int i = Components.Screens.Count - 1; i >= 0; i--)
             {
@@ -729,7 +796,12 @@ namespace LostLegend.States
             }
             Components.Draw(spriteBatch, master);
 
-            if (master.IsMapMoving)
+			foreach (RisingText component in master.entityManager.RisingTexts)
+			{
+				component.Draw(spriteBatch);
+			}
+
+			if (master.IsMapMoving)
             {
                 Components.Screens[0].BackgroundComponents.Reverse();
                 Components.Screens[0].BackgroundComponents.RemoveRange(0, 3);

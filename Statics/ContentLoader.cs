@@ -88,6 +88,10 @@ lostlegend_logo,1,0,1
 spoonfishstudios_logo,1,0,1
 GUI/PanelStyles/no_box,1,0,1
 GUI/PanelStyles/bronze,1,0,1
+GUI/PanelStyles/monster_hp_bar,1,0,1
+GUI/PanelStyles/monster_hp_bar_small,1,0,1
+GUI/PanelStyles/monster_turn_bar_small,1,0,1
+GUI/PanelStyles/bronze_battle_category,1,0,1
 GUI/PanelStyles/category_outline,1,0,1
 GUI/PanelStyles/category_outline_selected,1,0,1
 GUI/PanelStyles/bronze_thin,1,0,1
@@ -102,6 +106,10 @@ GUI/PanelStyles/red_outline,1,0,1
 GUI/Menu/blackout,1,0,1
 GUI/Menu/item_gradient_bg,1,0,1
 GUI/Menu/gradient_edge,1,0,1
+GUI/Menu/circle,1,0,1
+GUI/Menu/turn_bar_small,1,0,1
+GUI/Menu/hp_bar_small,1,0,1
+GUI/Menu/hp_bar,1,0,1
 
 GUI/Npc/blacksmith,1,0,1
 
@@ -122,6 +130,8 @@ GUI/Icons/e_arrow,1,0,1
 GUI/Icons/se_arrow,1,0,1
 GUI/Icons/s_arrow,1,0,1
 GUI/Icons/sw_arrow,1,0,1
+GUI/Icons/attack_icon,1,0,1
+GUI/Icons/useitem_icon,1,0,1
 GUI/Icons/w_arrow,1,0,1
 GUI/Icons/blacksmith_icon,1,0,1
 GUI/Icons/nw_arrow,1,0,1
@@ -130,6 +140,7 @@ GUI/Icons/lithram_food_shop_icon,1,0,1
 GUI/Icons/lithram_weapon_shop_icon,1,0,1
 GUI/Icons/lithram_armour_shop_icon,1,0,1
 GUI/Icons/lithram_fish_shop_icon,1,0,1
+GUI/Icons/running_slash_icon,1,0,1
 
 Map/Battles/battle_lithram_beach,1,0,1
 

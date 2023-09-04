@@ -44,13 +44,17 @@ namespace LostLegend.Graphics.GUI
 
 		}
 
+		public override void SetPos(Vector2 pos)
+		{
+			Position = pos;
+		}
 
 		public override void Draw(SpriteBatch spriteBatch, Vector2 offset = new Vector2(), float opacity = 0)
 		{
 			foreach (AnimatedTexture texture in ImageLayers)
 			{
 
-				texture.Draw(spriteBatch, Position*2 + offset, opacity, new Vector2(32, 60));
+				texture.Draw(spriteBatch, Position + offset, opacity, new Vector2(32, 60));
 			}
 			//Vector2 origin = new Vector2(0, 0);
 

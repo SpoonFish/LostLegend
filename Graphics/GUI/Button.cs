@@ -202,8 +202,11 @@ namespace LostLegend.Graphics.GUI
         private void LoadBoxType()
         {
             switch (BoxType)
-            {
-                case "bronze":
+			{
+				case "bronze_battle_category":
+					Box = new Panel(ContentLoader.Images["bronze_battle_category"], new Vector2(Width, Height), 6);
+					break;
+				case "bronze":
                     Box = new Panel(ContentLoader.Images["bronze"], new Vector2(Width, Height), 6);
                     break;
                 case "br_outline":

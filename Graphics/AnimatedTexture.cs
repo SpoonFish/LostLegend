@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using LostLegend.Statics;
 using Android.Icu.Number;
+using System.ComponentModel.Design;
 
 namespace LostLegend.Graphics
 {
@@ -86,9 +87,10 @@ namespace LostLegend.Graphics
         }
 
 
-        public void Draw(SpriteBatch spriteBatch, Vector2 position, float opacity = 1f, Vector2 size = new Vector2(), float rotation = 0, string outlineColour = null)
+        public void Draw(SpriteBatch spriteBatch, Vector2 position, float opacity = 1f, Vector2 size = new Vector2(), float rotation = 0, string outlineColour = null, Color colour = new Color(), Rectangle sourceRect = new Rectangle())
         {
-
+            if (colour == new Color())
+                colour = Color.White;
 
 			if (size == Vector2.Zero)
                 size = new Vector2(Width, Height);
@@ -100,17 +102,28 @@ namespace LostLegend.Graphics
             {
 
                 // Get size and pos of a frame image as a Rect
-                sourceRectangle = new Rectangle(Width * CurrentFrame + CurrentFrame, Height * CurrentType + CurrentType, Width, Height);
+                if (sourceRect != new Rectangle())
+					sourceRectangle = new Rectangle(Width * CurrentFrame + CurrentFrame, Height * CurrentType + CurrentType, sourceRect.Width, sourceRect.Height);
+				else
+                    sourceRectangle = new Rectangle(Width * CurrentFrame + CurrentFrame, Height * CurrentType + CurrentType, Width, Height);
 
-                // Get destination Rect where current frame image will be drawn
-                destinationRectangle = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
-            }
+				if (sourceRect != new Rectangle())
+					destinationRectangle = new Rectangle((int)position.X, (int)position.Y, sourceRect.Width, sourceRect.Height);
+				else
+					destinationRectangle = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+			}
             else
-            {
-                // Simple Simpleton drawing
-                sourceRectangle = new Rectangle(0, 0, Width, Height);
+			{
+				// Get size and pos of a frame image as a Rect
+				if (sourceRect != new Rectangle())
+					sourceRectangle = new Rectangle(0,0, sourceRect.Width, sourceRect.Height);
+				else
+					sourceRectangle = new Rectangle(0, 0, Width, Height);
 
-                destinationRectangle = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+				if (sourceRect != new Rectangle())
+					destinationRectangle = new Rectangle((int)position.X, (int)position.Y, sourceRect.Width, sourceRect.Height);
+				else
+					destinationRectangle = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
             }
             Vector2 origin;
             if (rotation == 0)
@@ -139,7 +152,7 @@ namespace LostLegend.Graphics
 					for (int y = -1; y < 2; y++)
 					{
 
-						spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White, rotation, origin + new Vector2(x,y), SpriteEffects.None, 1);
+						spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, colour, rotation, origin + new Vector2(x,y), SpriteEffects.None, 1);
 					}
 				}
                 spriteBatch.End();
@@ -147,10 +160,10 @@ namespace LostLegend.Graphics
 			}
 			if (opacity == 1)
             {
-                spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White, rotation, origin, SpriteEffects.None, 1);
+                spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, colour, rotation, origin, SpriteEffects.None, 1);
             }
             else
-                spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White * opacity, rotation, origin, SpriteEffects.None, 1);
+                spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, colour * opacity, rotation, origin, SpriteEffects.None, 1);
 
 
 

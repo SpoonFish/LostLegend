@@ -17,9 +17,11 @@ namespace LostLegend.Graphics.GUI
         public AnimatedTexture Image;
         public float Opacity;
         public string Outline;
+		public string Colour;
 
-        public ImagePanel(Vector2 position, AnimatedTexture image, Vector2 size = new Vector2(), float opacity = 1f, string outline = null)
+		public ImagePanel(Vector2 position, AnimatedTexture image, Vector2 size = new Vector2(), float opacity = 1f, string outline = null, string colour = "white")
         {
+            Colour = colour;
             Outline = outline;
             Opacity = opacity; 
             Position = position;
@@ -36,7 +38,7 @@ namespace LostLegend.Graphics.GUI
 
         public void Draw(SpriteBatch spriteBatch, Vector2 offset = new Vector2(), float opacity = 0)
         {
-            Image.Draw(spriteBatch, Position + offset, Opacity, Size, 0, Outline);
+            Image.Draw(spriteBatch, Position + offset, Opacity, Size, 0, Outline, ContentLoader.Colours[Colour]);
             //Vector2 origin = new Vector2(0, 0);
             
             //Texture2D image = Image.Texture;

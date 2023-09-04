@@ -49,6 +49,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/Character/body_tone2.png
 
+#begin Images/GUI/Menu/circle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/Menu/circle.png
+
 #begin Images/Character/body_tone3.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -565,6 +577,42 @@
 /processorParam:TextureFormat=Color
 /build:Images/font.png
 
+#begin Images/GUI/Icons/useitem_icon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/Icons/useitem_icon.png
+
+#begin Images/GUI/Icons/running_slash_icon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/Icons/running_slash_icon.png
+
+#begin Images/GUI/Icons/attack_icon.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/Icons/attack_icon.png
+
 #begin Images/GUI/Icons/armour_category.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -913,6 +961,44 @@
 /processorParam:TextureFormat=Color
 /build:Images/GUI/Npc/blacksmith.png
 
+#begin Images/GUI/Menu/turn_bar_small.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/Menu/turn_bar_small.png
+
+#begin Images/GUI/Menu/hp_bar_small.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/Menu/hp_bar_small.png
+
+
+#begin Images/GUI/Menu/hp_bar.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/Menu/hp_bar.png
+
+
 #begin Images/GUI/PanelStyles/blue_outline_round.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -996,6 +1082,54 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/GUI/PanelStyles/bronze.png
+
+#begin Images/GUI/PanelStyles/monster_hp_bar.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/PanelStyles/monster_hp_bar.png
+
+#begin Images/GUI/PanelStyles/monster_hp_bar_small.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/PanelStyles/monster_hp_bar_small.png
+
+#begin Images/GUI/PanelStyles/monster_turn_bar_small.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/PanelStyles/monster_turn_bar_small.png
+
+#begin Images/GUI/PanelStyles/bronze_battle_category.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/GUI/PanelStyles/bronze_battle_category.png
 
 #begin Images/GUI/PanelStyles/category_outline_selected.png
 /importer:TextureImporter
