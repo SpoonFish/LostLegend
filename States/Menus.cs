@@ -198,7 +198,7 @@ namespace LostLegend.States
 					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X - 45, 10), new Vector2(40, 40), new ButtonSignalEvent("exit_fight"), "br_outline_round", null));
 					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X - 44, 11), ContentLoader.Images["burger_bar"], new Vector2(36, 36)));
 
-					if (!master.entityManager.TurnPassing)
+					if (!master.entityManager.TurnPassing && !master.entityManager.IsPlayerDead())
 					{
 						components.MainScreen.Buttons.Add(new Button("", "", new Vector2(-10, Measurements.FullScreen.Y - Measurements.EighthScreen.Y * 1.5f + 10), new Vector2(Measurements.FullScreen.X + 20, 2), new ButtonSignalEvent(), "bronze_battle_category", null, new Vector2(0, 10)));
 
@@ -244,13 +244,13 @@ namespace LostLegend.States
 					for (int i = 0; i < master.entityManager.MonsterEntities.Count; i ++)
 					{
 						MonsterEntity entity = master.entityManager.MonsterEntities[i];
-						components.MainScreen.Entities.Add(new DisplayableMonster(master.entityManager.GetEntityPos(i), entity.Texture, i));
+						components.MainScreen.Entities.Add(new DisplayableMonster(master.entityManager.GetEntityPos(i), entity, i));
 
 					}
 
 
 
-					if (!master.entityManager.TurnPassing)
+					if (!master.entityManager.TurnPassing && !master.entityManager.IsPlayerDead())
 					{
 						switch (master.entityManager.CurrentBattleMenuCategory)
 						{
@@ -264,6 +264,13 @@ namespace LostLegend.States
 
 								break;
 						}
+					}
+					else if (master.entityManager.IsPlayerDead())
+					{
+						components.MainScreen.FadingImages.Add(new FadingImage(new ImagePanel(new Vector2(0, Measurements.EighthScreen.Y), ContentLoader.Images["blackout"], new Vector2(Measurements.FullScreen.X, Measurements.FullScreen.X * 10 / 9)),"in",1));
+						components.MainScreen.BasicComponents.Add(new TextBox("#red#DEFEAT", new Vector2(Measurements.HalfScreen.X - 30, Measurements.FullScreen.Y-Measurements.EighthScreen.Y), 1000, "none"));
+						components.MainScreen.Buttons.Add(new Button("CONTINUE", "#lightred#CONTINUE", new Vector2(20, Measurements.ThreeQuarterScreen.Y - 12), new Vector2(Measurements.FullScreen.X - 40, Measurements.EighthScreen.Y / 2), new ButtonSignalEvent("change_menu", "world_map")));
+
 					}
 
 
@@ -283,7 +290,7 @@ namespace LostLegend.States
 
 					// components.MainScreen.BackgroundComponents.Add(new ImagePanel(new Vector2(-10, -10), ContentLoader.Images["burger_bar"], new Vector2(400, 400)));
 					components.MainScreen.BasicComponents.Add(new TextBox(master.worldManager.CurrentMap.Name, new Vector2(17, 17), 1000, "none", "left", true));
-					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X - 45, 10), new Vector2(40, 40), new ButtonSignalEvent("change_menu", "save_select"), "br_outline_round", null));
+					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X - 45, 10), new Vector2(40, 40), new ButtonSignalEvent("exit_fight"), "br_outline_round", null));
 					components.MainScreen.Buttons.Add(new Button("", "", new Vector2(Measurements.FullScreen.X - 100, 10), new Vector2(40, 40), new ButtonSignalEvent("change_menu", "inventory"), "br_outline_round", null));
 					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X - 44, 11), ContentLoader.Images["burger_bar"], new Vector2(36, 36)));
 					components.MainScreen.BasicComponents.Add(new ImagePanel(new Vector2(Measurements.FullScreen.X - 99, 11), ContentLoader.Images["backpack"], new Vector2(36, 36)));

@@ -1,4 +1,5 @@
 ﻿
+using Dalvik.Bytecode;
 using LostLegend.Entities;
 using LostLegend.Master;
 using LostLegend.Statics;
@@ -21,20 +22,22 @@ namespace LostLegend.Graphics.GUI
 		private ProgressBar HealthBar;
 		private ProgressBar TurnBar;
 		private bool StillHovered;
+		private float Opacity;
 
 		private bool Selected;
 		private bool SelectedForAttack;
 
-		public DisplayableMonster(Vector2 position, AnimatedTexture texture, int entityIndex)
+		public DisplayableMonster(Vector2 position,MonsterEntity entity, int entityIndex)
 		{
-			TurnBar = new ProgressBar(position - new Vector2(0, 32), new Vector2(40, 6), "monster_turn_bar_small", ContentLoader.Images["turn_bar_small"], 1);
-			HealthBar = new ProgressBar(position - new Vector2(0, 15), new Vector2(40, 6), "monster_hp_bar_small", ContentLoader.Images["hp_bar_small"], 1, true);
+			Opacity = entity.DisplayOpacity;
+			TurnBar = new ProgressBar(position - new Vector2(0, 32), new Vector2(40, 6), "monster_turn_bar_small", ContentLoader.Images["turn_bar_small"], entity.MaxCooldown, entity.Cooldown);
+			HealthBar = new ProgressBar(position - new Vector2(0, 15), new Vector2(40, 6), "monster_hp_bar_small", ContentLoader.Images["hp_bar_small"], entity.BaseStats.MaxHp, entity.BaseStats.Hp, new Color(0,255,0), new Color(255, 0, 0)) ;
 			StillHovered = false;
 			Selected = false;
 			SelectedForAttack = false;
 			Position = position;
 			EntityIndex = entityIndex;
-			Texture = texture;
+			Texture = entity.Texture;
 			Hitbox = new Rectangle((position).ToPoint(), new Point(Texture.Width  *2 , Texture.Height * 2));
 		}
 
@@ -53,6 +56,7 @@ namespace LostLegend.Graphics.GUI
 
 			TurnBar.Update(entity.Cooldown, entity.MaxCooldown);
 
+			Opacity = entity.DisplayOpacity;
 			Rectangle hitbox = new Rectangle((Position).ToPoint() + offset.ToPoint(), Hitbox.Size);
 			if (hitbox.Contains(master.TouchPos) && master.IsScreenTouched && !StillHovered)
 			{
@@ -84,14 +88,18 @@ namespace LostLegend.Graphics.GUI
 		public override void Draw(SpriteBatch spriteBatch, Vector2 offset = new Vector2(), float opacity = 0)
 		{
 			if (!Selected)
-				Texture.Draw(spriteBatch, Position + offset , opacity, new Vector2(Texture.Width*2, Texture.Height*2));
+				Texture.Draw(spriteBatch, Position + offset , Opacity, new Vector2(Texture.Width*2, Texture.Height*2));
 			else
 				if (SelectedForAttack)
-					Texture.Draw(spriteBatch, Position + offset, opacity, new Vector2(Texture.Width * 2, Texture.Height * 2), 0, "red");
+					Texture.Draw(spriteBatch, Position + offset, Opacity, new Vector2(Texture.Width * 2, Texture.Height * 2), 0, "red");
 				else
-					Texture.Draw(spriteBatch, Position + offset, opacity, new Vector2(Texture.Width * 2, Texture.Height * 2),0,"green");
-			HealthBar.Draw(spriteBatch, offset);
-			TurnBar.Draw(spriteBatch, offset);
+					Texture.Draw(spriteBatch, Position + offset, Opacity, new Vector2(Texture.Width * 2, Texture.Height * 2),0,"green");
+			if (Opacity == 1)
+			{
+
+				HealthBar.Draw(spriteBatch, offset);
+				TurnBar.Draw(spriteBatch, offset);
+			}
 		}
 
 	}

@@ -50,6 +50,14 @@ namespace LostLegend.Statics
 					strength: 3,
 					maxHp: 2
 					)) },
+				{ "leather tunic", new Item("leather tunic", "wurm", 2, ItemTypes.Chest, ContentLoader.Images["leather_tunic"], true, stats: new StatsHolder(
+					maxHp: 1,
+					defence: 7
+					)) },
+				{ "leather leggings", new Item("leather leggings", "wurm", 2, ItemTypes.Legs, ContentLoader.Images["leather_leggings"], true, stats: new StatsHolder(
+					maxHp: 1,
+					defence: 6
+					)) },
 			};
 		}
 	}

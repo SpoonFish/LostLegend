@@ -84,9 +84,10 @@ namespace LostLegend
             NpcInfo.LoadNpcInfo();
             AttackInfo.LoadAttacks();
             ItemInfo.LoadItems();
-            //LevelInfo.LoadLevelInfo();
-            //Npcs.LoadNpcInfo();
-            ContentLoader.LoadFont(Content, GraphicsDevice);
+			MonsterInfo.LoadMonsters();
+			//LevelInfo.LoadLevelInfo();
+			//Npcs.LoadNpcInfo();
+			ContentLoader.LoadFont(Content, GraphicsDevice);
             //Effects.LoadEffects(Content);
 
             _masterManager = new MasterManager(Window, GraphicsDevice, _graphics, Content);

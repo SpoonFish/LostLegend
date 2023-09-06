@@ -23,14 +23,18 @@ namespace LostLegend.Graphics.GUI
 		public float Progress;
 		private float MaxProgress;
 		private AnimatedTexture BarTexture;
+		private Color PrimaryColour;
+		private Color SecondaryColour;
 		private Color Colour;
 
-		public ProgressBar(Vector2 position, Vector2 size, string boxType, AnimatedTexture barTexture, float maxProgress, bool colouredBar = false)
+		public ProgressBar(Vector2 position, Vector2 size, string boxType, AnimatedTexture barTexture, float maxProgress, float currentProgress = 0, Color primColour = new Color(), Color secColour = new Color())
 		{
 			Colour = Color.White;
-			ColouredBar = colouredBar;
+			PrimaryColour = primColour;
+			SecondaryColour = secColour;
+			ColouredBar = PrimaryColour != SecondaryColour;
 			BarTexture = barTexture;
-			Progress = 0;
+			Progress = currentProgress/maxProgress;
 			MaxProgress = maxProgress;
 			BoxType = boxType;
 			Position = position.ToPoint().ToVector2();
@@ -50,8 +54,8 @@ namespace LostLegend.Graphics.GUI
 			if (ColouredBar)
 			{
 
-				Vector3 primaryColour = new Vector3(0, 1, 0);
-				Vector3 secondaryColour = new Vector3(1, 0, 0);
+				Vector3 primaryColour = PrimaryColour.ToVector3();
+				Vector3 secondaryColour = SecondaryColour.ToVector3();
 				Vector3 colour = ((primaryColour * progress) + (secondaryColour * (-progress + 1))) * 2;
 				Colour = new Color(colour.X, colour.Y, colour.Z);
 			}

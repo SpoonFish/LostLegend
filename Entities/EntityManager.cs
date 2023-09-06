@@ -13,63 +13,70 @@ using System.Threading.Tasks;
 
 namespace LostLegend.Entities
 {
-    class EntityManager
+	class EntityManager
 	{
 		public double EnemyCooldownTimer;
 		private bool EnemyCooldownTimerPassingOnNextFrame;
 		public bool EnemyCooldownTimerPassing;
 		public double BattleTime;
-        public bool TurnPassing;
-        public PlayerEntity Player;
-        public List<MonsterEntity> MonsterEntities;
+		public bool TurnPassing;
+		public PlayerEntity Player;
+		public List<MonsterEntity> MonsterEntities;
 		public List<RisingText> RisingTexts;
-		public List<int> PendingAttacks;
+		public List<FadingImage> DroppedItems;
+		public List<string> ItemsToLoot;
 		public int SelectedMonsterIndex;
-        public string CurrentBattleMenuCategory;
-        public int CurrentAttackingEnemyIndex;
+		public string CurrentBattleMenuCategory;
+		public int CurrentAttackingEnemyIndex;
 
-        public bool PauseCooldownTimer;
+		public bool BattleInProgress;
+		public bool PauseCooldownTimer;
 
-		public EntityManager(MasterManager master) 
-        {
-			PendingAttacks = new List<int>();
-            CurrentAttackingEnemyIndex = -1;
-            PauseCooldownTimer = false;
-            EnemyCooldownTimer = 0;
+		public EntityManager(MasterManager master)
+		{
+			BattleInProgress = true;
+			DroppedItems = new List<FadingImage>();
+			ItemsToLoot = new List<string>();
+			CurrentAttackingEnemyIndex = -1;
+			PauseCooldownTimer = false;
+			EnemyCooldownTimer = 0;
 			EnemyCooldownTimerPassingOnNextFrame = false;
 			EnemyCooldownTimerPassing = false;
 			BattleTime = 0;
-            RisingTexts = new List<RisingText>();
-            TurnPassing = false;
-            CurrentBattleMenuCategory = "attacks";
-            SelectedMonsterIndex = -1;
-            MonsterEntities = new List<MonsterEntity>() { new MonsterEntity(ContentLoader.Images["crab"], 0) , new MonsterEntity(ContentLoader.Images["crab"], 1) , new MonsterEntity(ContentLoader.Images["crab"], 2) };
-            
-		}
+			RisingTexts = new List<RisingText>();
+			TurnPassing = false;
+			CurrentBattleMenuCategory = "attacks";
+			SelectedMonsterIndex = -1;
+			MonsterEntities = new List<MonsterEntity>() { };
+			for (int i = 0; i < 4; i++)
+				MonsterEntities.Add(MonsterInfo.GetMonster("crab", i));
 
-        public void LoadPlayer(MasterManager master)
-        {
-            Player = new PlayerEntity(master);
-        }
+		}
+		public void LoadPlayer(MasterManager master)
+		{
+			Player = new PlayerEntity(master);
+		}
 
 		public void TriggerTurnCycle()
 		{
 
-            if (SelectedMonsterIndex == -1 && (Player.SelectedAttack != null && !Player.SelectedAttack.NeedsTarget))
+			if (SelectedMonsterIndex == -1 && (Player.SelectedAttack != null && !Player.SelectedAttack.NeedsTarget))
 				return;
-            TurnPassing = true;
+			TurnPassing = true;
 			Player.Attack();
 
 		}
 		public void ResetBattle()
 		{
 
-            Player.Attacking = false;
-            Player.BeingAttacked = false;
-            TurnPassing = false;
-            BattleTime = 0;
+			ItemsToLoot.Clear();
+			DroppedItems.Clear();
+			Player.Attacking = false;
+			Player.BeingAttacked = false;
+			TurnPassing = false;
+			BattleTime = 0;
 			foreach (MonsterEntity entity in MonsterEntities)
-				entity.Reset() ;
+				entity.Reset();
 
 		}
 
@@ -78,14 +85,34 @@ namespace LostLegend.Entities
 
 			Vector2 pos = new Vector2(Measurements.FullScreen.X / 2 - 20, Measurements.EighthScreen.Y + Measurements.FullScreen.X / 4 - 20);
 
-			pos.X -= MonsterEntities.Count * 27;
-			pos.X += index * 54 + 27;
+			if (index < 5)
+			{
 
-            if (index % 2 == 0)
-                pos.Y += 15;
+				pos.X -= Math.Min(5, MonsterEntities.Count) * 27;
+				pos.X += index * 54 + 27;
+
+				if (index % 2 == 0)
+					pos.Y += 15;
+			}
+			else
+			{
+
+				pos.X -= Math.Min(5, MonsterEntities.Count - 5) * 27;
+				pos.X += (index - 5) * 54 + 27;
+				pos.Y += 70;
+
+				if (index % 2 == 1)
+					pos.Y += 15;
+			}
+
 
 			return pos;
 
+		}
+
+		public void KillMonsterByIndex(int index)
+		{
+			MonsterEntities[index] = MonsterInfo.GetMonster("dead", index);
 		}
 
 		public bool AnyEntityAttacking()
@@ -97,15 +124,36 @@ namespace LostLegend.Entities
 		}
 		public void Update(MasterManager master)
 		{
+
+			if (BattleInProgress)
+			{
+
+				if (IsPlayerDead())
+				{
+					master.entityManager.BattleInProgress = false;
+					ItemsToLoot.Clear();
+					DroppedItems.Clear();
+				}
+				else if (IsAllMonstersDead())
+				{
+					master.entityManager.BattleInProgress = false;
+					foreach (string item in ItemsToLoot)
+					{
+						Player.Inventory.AddItem(item);
+					}
+					ItemsToLoot.Clear();
+					DroppedItems.Clear();
+				}
+			}
 			if (!EnemyCooldownTimerPassingOnNextFrame)
 			{
-				PendingAttacks.Clear();
 				EnemyCooldownTimerPassing = false;
 			}
 			if (!TurnPassing)
-            {
-                return;
-            }
+			{
+				Player.Position = Player.PositionBeforeAttack;
+				return;
+			}
 
 			if (EnemyCooldownTimer > 0 && !PauseCooldownTimer)
 			{
@@ -117,14 +165,25 @@ namespace LostLegend.Entities
 					EnemyCooldownTimerPassingOnNextFrame = false;
 					EnemyCooldownTimer = 0;
 				}
-					
+
 			}
 			else if (!Player.Attacking && !Player.BeingAttacked && !AnyEntityAttacking() && !PauseCooldownTimer)
 				TurnPassing = false;
+			Player.Update(master);
+			for (int i = MonsterEntities.Count - 1; i >= 0; i--)
+			{
+				MonsterEntity entity = MonsterEntities[i];
+				entity.Update(master);
+			}
+		}
 
-            Player.Update(master);
-            foreach (MonsterEntity entity in MonsterEntities)
-                entity.Update(master);
+		private bool IsAllMonstersDead()
+		{
+
+			foreach (MonsterEntity entity in MonsterEntities)
+				if (entity.Name != "dead")
+					return false;
+			return true;
 		}
 
 		public void DamageSelectedMonster()
@@ -134,7 +193,7 @@ namespace LostLegend.Entities
 
             entity.BeingAttacked = true;
 
-            float damageDealt = Player.BaseStats.Strength * attack.DamageMult;
+            float damageDealt = (Player.BaseStats.Strength + Player.Equipment.GetTotalStats(Player).Strength)* attack.DamageMult;
             float hpHealed = 0;
             float mpHealed = 0;
 
@@ -190,5 +249,41 @@ namespace LostLegend.Entities
 			}
 			return null;
 		}
+
+		public bool IsPlayerDead()
+		{
+			return Player.BaseStats.Hp < 0;
+		}
+
+		public void AddLoot(LootTable lootTable, Vector2 position)
+		{
+			Random rnd = new Random();
+			if (lootTable.ExclusiveOutcome)
+			{
+				LootTableEntry entry = lootTable.Possibilities[rnd.Next(0, lootTable.Possibilities.Count - 1)];
+				for (int i = entry.AmountMin; i <= entry.AmountMax; i++)
+				{ 
+					ItemsToLoot.Add(entry.Item);
+					DroppedItems.Add(new FadingImage(new ImagePanel(position + new Vector2(rnd.Next(-3, 13), rnd.Next(-3, 13)), ContentLoader.Images[entry.Item.Replace(' ', '_')], new Vector2(20, 20)), "in", 0.5));
+				}
+			
+			}
+			else
+			{
+				float chance = rnd.NextSingle();
+
+				foreach (LootTableEntry entry in lootTable.Possibilities)
+				{
+					if (chance < entry.Chance)
+						for (int i = entry.AmountMin; i <= entry.AmountMax; i++)
+						{
+							ItemsToLoot.Add(entry.Item);
+							DroppedItems.Add(new FadingImage(new ImagePanel(position + new Vector2(rnd.Next(-3, 13), rnd.Next(-3, 13)), ContentLoader.Images[entry.Item.Replace(' ', '_')], new Vector2(20, 20)), "in", 0.5));
+						}
+
+				}
+			}
+		}
+
 	}
 }

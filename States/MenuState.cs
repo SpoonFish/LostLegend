@@ -65,6 +65,7 @@ namespace LostLegend.States
 						return true;
 					case "start_fight":
                         master.entityManager.ResetBattle();
+                        master.entityManager.BattleInProgress = true;
 						UnloadMenu();
 						LoadMenu("battle", master, true);
 						return true;
@@ -647,8 +648,12 @@ namespace LostLegend.States
                 if (text.Opacity < 0.001)
                     master.entityManager.RisingTexts.Remove(text);
 
-            }
-            foreach (FadingImage image in Components.MainScreen.FadingImages)
+			}
+			foreach (FadingImage component in master.entityManager.DroppedItems)
+			{
+				component.Update(gameTime);
+			}
+			foreach (FadingImage image in Components.MainScreen.FadingImages)
             {
                 string possibleNextMenu = image.Update(gameTime);
                 if (possibleNextMenu != "")
@@ -691,8 +696,9 @@ namespace LostLegend.States
                 screen.Update(master.TouchPos, master.ScrollDif, master.ScrollMomentum);
             }
 
-			foreach (GuiEntity entity in Components.MainScreen.Entities)
+			for (int i = Components.MainScreen.Entities.Count - 1; i >= 0; i--)
 			{
+				GuiEntity entity = Components.MainScreen.Entities[i];
 				entity.Update(master);
 			}
 			List<IGuiButton> mainButtons = Components.MainScreen.Buttons;
@@ -713,10 +719,6 @@ namespace LostLegend.States
                     CheckSignal(master, signal, game);
                 }
 
-                foreach (GuiEntity entity in screen.Entities)
-                {
-                    entity.Update(master, screen.CurrentScroll);
-                }
 
             }
 
@@ -797,6 +799,10 @@ namespace LostLegend.States
             Components.Draw(spriteBatch, master);
 
 			foreach (RisingText component in master.entityManager.RisingTexts)
+			{
+				component.Draw(spriteBatch);
+			}
+			foreach (FadingImage component in master.entityManager.DroppedItems)
 			{
 				component.Draw(spriteBatch);
 			}

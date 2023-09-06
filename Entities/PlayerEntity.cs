@@ -15,6 +15,7 @@ namespace LostLegend.Entities
     {
 		public bool Attacking;
         public StatsHolder BaseStats;
+		public StatusEffectHolder Effects;
         public Inventory Inventory;
         public EquipmentHolder Equipment;
         public MapInfo.MapAreaIDs CurrentArea;
@@ -100,7 +101,7 @@ namespace LostLegend.Entities
 				AttackTime += master.timePassed;
 				Position = master.entityManager.GetAttackingMonster().Attack.Animation.GetMovement(AttackTime, PositionBeforeAttack, master.entityManager.GetAttackingMonster().PositionBeforeAttack, false, true);
 
-				if (AttackTime > master.entityManager.GetAttackingMonster().Attack.Animation.Duration * 2)
+				if (AttackTime > master.entityManager.GetAttackingMonster().Attack.Animation.Duration *2)
 				{
 					Position = PositionBeforeAttack;
 					BeingAttacked = false;

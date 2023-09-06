@@ -69,5 +69,20 @@ namespace LostLegend.Entities.Parts
 			else
 				return null;
 		}
+		public StatsHolder GetTotalStats(PlayerEntity player)
+		{
+			StatsHolder stats = new StatsHolder();
+			if (Accessory > -1)
+				stats.Add(player.Inventory.Items[Accessory].EquipStats);
+			if (Weapon > -1)
+				stats.Add(player.Inventory.Items[Weapon].EquipStats);
+			if (Head > -1)
+				stats.Add(player.Inventory.Items[Head].EquipStats);
+			if (Legs > -1)
+				stats.Add(player.Inventory.Items[Legs].EquipStats);
+			if (Chest > -1)
+				stats.Add(player.Inventory.Items[Chest].EquipStats);
+			return stats;
+		}
 	}
 }

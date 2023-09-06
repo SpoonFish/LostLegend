@@ -131,9 +131,8 @@ namespace LostLegend.Graphics
             else
                 origin = new Vector2(destinationRectangle.Width / 2, destinationRectangle.Height / 2);
 
-			if (outlineColour != null)
+			if (outlineColour != null && opacity == 1)
 			{
-				opacity = 1;
 				Matrix matrix = Matrix.CreateScale(4, 4, 0f);
 				spriteBatch.End();
 				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, transformMatrix: matrix, samplerState: SamplerState.PointClamp);
@@ -152,7 +151,7 @@ namespace LostLegend.Graphics
 					for (int y = -1; y < 2; y++)
 					{
 
-						spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, colour, rotation, origin + new Vector2(x,y), SpriteEffects.None, 1);
+						spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, colour * opacity, rotation, origin + new Vector2(x,y), SpriteEffects.None, 1);
 					}
 				}
                 spriteBatch.End();

@@ -4,6 +4,7 @@ using LostLegend.Graphics;
 using LostLegend.Master;
 using LostLegend.Statics;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace LostLegend.Entities
 		public int IndexPosition;
 		public Vector2 Position;
 		public StatsHolder BaseStats;
+		public StatusEffectHolder Effects;
 		public bool Attacking;
 		public bool BeingAttacked;
 		private double AttackTime;
@@ -24,35 +26,77 @@ namespace LostLegend.Entities
 		public float MaxCooldown;
 		public float Cooldown;
 		public float PrevCooldown;
+		public float DisplayOpacity;
 		public Attack Attack;
 		private float PartialCooldown;
+		private bool Dying;
+		private bool DroppedLoot;
 
 		public AnimatedTexture Texture;
 		private bool HasExecutedAttack;
+		public string Name;
 
-		public MonsterEntity(AnimatedTexture texture, int indexPosition)
+		public MonsterEntity(AnimatedTexture texture, string name, int indexPosition, StatsHolder baseStats, Attack attack, bool dead = false)
 		{
+			Name = name;
+			Effects = null;
+			DisplayOpacity = 1;
 			HasExecutedAttack = false;
-			Attack = AttackInfo.AttackDict["lol_slash"];
+			Attack = attack;
 			AttackTime = 0;
 			Attacking = false;
 			BeingAttacked = false;
+			DroppedLoot = false;
 			Texture = texture;
+			if (dead)
+				DisplayOpacity = 0;
 			IndexPosition = indexPosition;
 			PositionBeforeAttack = new Vector2();
 			Position = new Vector2();
-			BaseStats = new StatsHolder(50, 50, 50, 50, 5, 5);
-			MaxCooldown = Attack.Cooldown; 
-			Cooldown = Attack.Cooldown;
-			PrevCooldown = Attack.Cooldown;
+			BaseStats = baseStats;
+			float col = new Random().NextSingle(2f, 4);
+			MaxCooldown = col;
+			Cooldown = col;
+			Dying = false;
+			PrevCooldown = col;
 			PartialCooldown = 0;
 		}
 		public void Update(MasterManager master)
 		{
+			if (DisplayOpacity <= 0)
+				return;
+
+			if (Dying)
+			{
+				AttackTime += master.timePassed;
+				DisplayOpacity = Math.Max(0, (-(float)AttackTime + 1) / 1);
+				if (AttackTime > 0.5f && !DroppedLoot)
+				{
+
+					master.entityManager.AddLoot(MonsterInfo.LootTableDict[Name], Position);
+					DroppedLoot = true;
+				}
+				if (AttackTime > 1)
+				{
+					master.entityManager.SelectedMonsterIndex = -1;
+					master.entityManager.CurrentAttackingEnemyIndex = -1;
+					master.entityManager.PauseCooldownTimer = false;
+					master.entityManager.KillMonsterByIndex(IndexPosition);
+					return;
+				}
+			}
 			if (master.entityManager.Player.SelectedAttack == null)
 				return;
 			if (master.entityManager.EnemyCooldownTimerPassing)
 			{
+				if (BaseStats.Hp <= 0 && master.entityManager.CurrentAttackingEnemyIndex == -1)
+				{
+
+					Dying = true;
+					AttackTime = 0;
+					master.entityManager.CurrentAttackingEnemyIndex = IndexPosition;
+					master.entityManager.PauseCooldownTimer = true;
+				}
 				Cooldown = PrevCooldown - (float)(-master.entityManager.EnemyCooldownTimer/1+1) * master.entityManager.Player.SelectedAttack.Cooldown + PartialCooldown;
 				if (Cooldown < 0.07 && master.entityManager.CurrentAttackingEnemyIndex == -1)
 				{
@@ -60,7 +104,6 @@ namespace LostLegend.Entities
 					Cooldown = MaxCooldown;
 					PrevCooldown = MaxCooldown;
 					Attacking = true;
-					master.entityManager.PendingAttacks.Add(IndexPosition);
 					master.entityManager.CurrentAttackingEnemyIndex = IndexPosition;
 					master.entityManager.PauseCooldownTimer = true;
 				}
@@ -121,6 +164,7 @@ namespace LostLegend.Entities
 					HasExecutedAttack = true;
 				}
 			}
+
 		}
 
 		public void Reset()

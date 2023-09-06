@@ -42,5 +42,10 @@ namespace LostLegend.Entities.Parts
 			Strength += stats.Strength;
 			Defence += stats.Defence;
 		}
+
+		public StatsHolder Copy()
+		{
+			return new StatsHolder(Hp, MaxHp, Mp, MaxMp, Strength, Defence);
+		}
 	}
 }

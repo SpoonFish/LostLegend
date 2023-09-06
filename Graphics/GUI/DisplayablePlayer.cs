@@ -1,6 +1,7 @@
-﻿using Android.Graphics;
+﻿
 using Android.Icu.Number;
 using Android.Systems;
+using LostLegend.Entities;
 using LostLegend.Master;
 using LostLegend.Statics;
 using Microsoft.Xna.Framework;
@@ -17,7 +18,9 @@ namespace LostLegend.Graphics.GUI
 	{
 		public Vector2 Position;
 		public List<AnimatedTexture> ImageLayers;
-		
+		private ProgressBar HealthBar;
+		private ProgressBar MpBar;
+
 		public DisplayablePlayer(Vector2 position, MasterManager master)
 		{
 			Position = position;
@@ -41,6 +44,10 @@ namespace LostLegend.Graphics.GUI
 			else
 				ImageLayers.Add(ContentLoader.Images[master.storedDataManager.CurrentSaveFile.CharacterAppearance[0] + "_" + master.storedDataManager.CurrentSaveFile.CharacterAppearance[1]]);
 
+			HealthBar = new ProgressBar(new Vector2(12, 8), new Vector2(160, 18), "monster_hp_bar_small", ContentLoader.Images["hp_bar"], master.entityManager.Player.BaseStats.MaxHp, master.entityManager.Player.BaseStats.Hp,  new Color(0, 255, 0), new Color(255, 0, 0));
+
+			MpBar = new ProgressBar(new Vector2(12, 38), new Vector2(160, 18), "monster_hp_bar_small", ContentLoader.Images["hp_bar"], master.entityManager.Player.BaseStats.MaxMp, master.entityManager.Player.BaseStats.Hp, new Color(50, 50,255), new Color(125, 0, 125));
+
 
 		}
 
@@ -49,12 +56,24 @@ namespace LostLegend.Graphics.GUI
 			Position = pos;
 		}
 
+		public override void Update(MasterManager master, Vector2 offset)
+		{
+			PlayerEntity player = master.entityManager.Player;
+			HealthBar.Update(player.BaseStats.Hp, player.BaseStats.MaxHp);
+			MpBar.Update(player.BaseStats.Hp, player.BaseStats.MaxMp);
+		}
 		public override void Draw(SpriteBatch spriteBatch, Vector2 offset = new Vector2(), float opacity = 0)
 		{
 			foreach (AnimatedTexture texture in ImageLayers)
 			{
 
 				texture.Draw(spriteBatch, Position + offset, opacity, new Vector2(32, 60));
+			}
+			if (opacity == 1)
+			{
+
+				HealthBar.Draw(spriteBatch, offset);
+				MpBar.Draw(spriteBatch, offset);
 			}
 			//Vector2 origin = new Vector2(0, 0);
 

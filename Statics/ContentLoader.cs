@@ -43,7 +43,9 @@ namespace LostLegend.Statics
 Character/head_palm_hat,4,1000,1
 Character/head_guard_helm,4,1000,1
 Character/chest_leaf_shirt,4,1000,1
+Character/chest_leather_tunic,4,1000,1
 Character/legs_gray_shorts,4,1000,1
+Character/legs_leather_leggings,4,1000,1
 
 Character/head_tone1,4,1000,1
 Character/body_tone1,4,1000,1
@@ -80,6 +82,8 @@ Items/palm_log,1,0,1
 Items/palm_sword,1,0,1
 Items/palm_hat,1,0,1
 Items/guard_helm,1,0,1
+Items/leather_tunic,1,0,1
+Items/leather_leggings,1,0,1
 
 test,1,0,1
 test2,1,0,1
